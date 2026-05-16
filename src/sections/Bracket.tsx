@@ -25,12 +25,11 @@ function getSlots(data: ReturnType<typeof useTournament>["data"]): Slot[] {
     first.push({ label: `1${g}`, flag: s[0]?.team.flag, name: s[0]?.team.name });
     second.push({ label: `2${g}`, flag: s[1]?.team.flag, name: s[1]?.team.name });
   });
-  const thirds = bestThirds(data).slice(0, 8).map((t) => ({
+  const thirds: Slot[] = bestThirds(data).slice(0, 8).map((t) => ({
     label: `Mejor tercero (${t.group})`,
     flag: t.standing.team.flag,
     name: t.standing.team.name,
   }));
-  // Pad thirds to 8
   while (thirds.length < 8) thirds.push({ label: "Mejor tercero" });
   return [...first, ...second, ...thirds]; // 32 slots
 }
