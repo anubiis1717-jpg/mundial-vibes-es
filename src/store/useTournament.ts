@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AppData, INITIAL_DATA, KOMatch, Match, SlotRef, Team } from "@/data/initialData";
 
-const KEY = "mundial2026.v3";
+const KEY = "mundial2026.v2";
 
 function load(): AppData {
   try {
