@@ -226,7 +226,7 @@ function KOCard({ match, compact = false }: { match: KOMatch; compact?: boolean 
 }
 
 function KOSide({
-  team, ref, score, pens, showPens, win,
+  team, slot, score, pens, showPens, win,
 }: {
   team?: { name: string; flag: string };
   slot: SlotRef;
@@ -287,7 +287,7 @@ function MiniCard({ match, highlight = false }: { match: KOMatch; highlight?: bo
   const away = resolveSlot(data, match.awayFrom);
   const { winner } = koWinnerLoser(match);
 
-  const Row = ({ team, ref, score, win }: { team?: { name: string; flag: string }; slot: SlotRef; score: number | null; win: boolean }) => (
+  const Row = ({ team, slot, score, win }: { team?: { name: string; flag: string }; slot: SlotRef; score: number | null; win: boolean }) => (
     <div className={cn(
       "flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-xs",
       win && "bg-secondary/20"
