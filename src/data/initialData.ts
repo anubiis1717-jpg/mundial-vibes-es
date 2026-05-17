@@ -76,14 +76,14 @@ Object.entries(groupsRaw).forEach(([g, ts]) => {
 
 // A few sample scorers/assists
 const players: Player[] = [
-  { id: "p1", name: "Lionel Messi", teamId: "C-argentina", goals: 0, assists: 0 },
-  { id: "p2", name: "Kylian Mbappé", teamId: "D-francia", goals: 0, assists: 0 },
-  { id: "p3", name: "Vinícius Jr.", teamId: "F-brasil", goals: 0, assists: 0 },
-  { id: "p4", name: "Lamine Yamal", teamId: "E-espana", goals: 0, assists: 0 },
-  { id: "p5", name: "Luis Díaz", teamId: "B-colombia", goals: 0, assists: 0 },
-  { id: "p6", name: "Harry Kane", teamId: "G-inglaterra", goals: 0, assists: 0 },
-  { id: "p7", name: "Cristiano Ronaldo", teamId: "H-portugal", goals: 0, assists: 0 },
-  { id: "p8", name: "Jamal Musiala", teamId: "I-alemania", goals: 0, assists: 0 },
+  { id: "p1", name: "Lionel Messi", teamId: "J-argentina", goals: 0, assists: 0 },
+  { id: "p2", name: "Kylian Mbappé", teamId: "I-francia", goals: 0, assists: 0 },
+  { id: "p3", name: "Vinícius Jr.", teamId: "C-brasil", goals: 0, assists: 0 },
+  { id: "p4", name: "Lamine Yamal", teamId: "H-espana", goals: 0, assists: 0 },
+  { id: "p5", name: "Luis Díaz", teamId: "K-colombia", goals: 0, assists: 0 },
+  { id: "p6", name: "Harry Kane", teamId: "L-inglaterra", goals: 0, assists: 0 },
+  { id: "p7", name: "Cristiano Ronaldo", teamId: "K-portugal", goals: 0, assists: 0 },
+  { id: "p8", name: "Jamal Musiala", teamId: "E-alemania", goals: 0, assists: 0 },
 ];
 
 export const INITIAL_DATA: AppData = { teams, matches, players };
