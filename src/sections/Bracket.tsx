@@ -1,99 +1,335 @@
-import { bestThirds, computeStandings, useTournament } from "@/store/useTournament";
+import { useState } from "react";
+import { KOMatch, SlotRef } from "@/data/initialData";
+import { koWinnerLoser, resolveSlot, slotLabel, useTournament } from "@/store/useTournament";
 import { cn } from "@/lib/utils";
 
-const ROUNDS = [
-  { key: "r32", title: "Ronda de 32" },
-  { key: "r16", title: "Octavos" },
-  { key: "qf", title: "Cuartos" },
-  { key: "sf", title: "Semifinales" },
-  { key: "third", title: "Tercer puesto" },
-  { key: "final", title: "Final" },
-];
-
-interface Slot {
-  label: string;
-  flag?: string;
-  name?: string;
-}
-
-function getSlots(data: ReturnType<typeof useTournament>["data"]): Slot[] {
-  const groups = "ABCDEFGHIJKL".split("");
-  const first: Slot[] = [];
-  const second: Slot[] = [];
-  groups.forEach((g) => {
-    const s = computeStandings(data, g);
-    first.push({ label: `1${g}`, flag: s[0]?.team.flag, name: s[0]?.team.name });
-    second.push({ label: `2${g}`, flag: s[1]?.team.flag, name: s[1]?.team.name });
-  });
-  const thirds: Slot[] = bestThirds(data).slice(0, 8).map((t) => ({
-    label: `Mejor tercero (${t.group})`,
-    flag: t.standing.team.flag,
-    name: t.standing.team.name,
-  }));
-  while (thirds.length < 8) thirds.push({ label: "Mejor tercero" });
-  return [...first, ...second, ...thirds]; // 32 slots
-}
+const ROUND_TITLES: Record<KOMatch["stage"], string> = {
+  r32: "Ronda de 32",
+  r16: "Octavos de final",
+  qf: "Cuartos de final",
+  sf: "Semifinales",
+  third: "Tercer puesto",
+  final: "Final",
+};
 
 export function Bracket() {
-  const { data } = useTournament();
-  const slots = getSlots(data);
+  const [mode, setMode] = useState<"cuadro" | "lista">("lista");
 
-  // Build 16 R32 pairings just by adjacent pairs from the 32 slot list
-  const r32: [Slot, Slot][] = [];
-  for (let i = 0; i < slots.length; i += 2) r32.push([slots[i], slots[i + 1]]);
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-2xl font-black">Bracket</h2>
+        <div className="flex rounded-xl bg-muted p-1 text-sm font-bold">
+          <button
+            onClick={() => setMode("cuadro")}
+            className={cn("px-3 h-9 rounded-lg transition", mode === "cuadro" && "bg-accent text-accent-foreground")}
+          >
+            Cuadro
+          </button>
+          <button
+            onClick={() => setMode("lista")}
+            className={cn("px-3 h-9 rounded-lg transition", mode === "lista" && "bg-accent text-accent-foreground")}
+          >
+            Lista
+          </button>
+        </div>
+      </div>
+
+      <div className="card-surface p-4 text-sm text-muted-foreground leading-relaxed">
+        Clasifican a la <span className="accent-green font-bold">Ronda de 32</span> los{" "}
+        <span className="accent-red font-bold">dos primeros</span> de cada grupo y los{" "}
+        <span className="accent-blue font-bold">ocho mejores terceros</span>. Los ganadores avanzan ronda por ronda hasta la Final.
+      </div>
+
+      {mode === "lista" ? <ListView /> : <CuadroView />}
+    </div>
+  );
+}
+
+// ============ LIST VIEW ============
+function ListView() {
+  const { data } = useTournament();
+  const stages: KOMatch["stage"][] = ["r32", "r16", "qf", "sf", "third", "final"];
+  return (
+    <div className="space-y-6">
+      {stages.map((s) => {
+        const matches = data.knockout.filter((m) => m.stage === s);
+        return (
+          <section key={s} className="space-y-3">
+            <h3 className="text-lg font-bold flex items-center gap-2">
+              <span className="h-1.5 w-6 rounded-full bg-primary" />
+              {ROUND_TITLES[s]}
+              <span className="text-xs font-normal text-muted-foreground">({matches.length})</span>
+            </h3>
+            <div className="space-y-3">
+              {matches.map((m) => <KOCard key={m.id} match={m} />)}
+            </div>
+          </section>
+        );
+      })}
+      <ChampionCard />
+    </div>
+  );
+}
+
+// ============ CUADRO VIEW ============
+function CuadroView() {
+  const { data } = useTournament();
+  const byStage = (s: KOMatch["stage"]) => data.knockout.filter((m) => m.stage === s);
+
+  // Left half: r32 M1-M8, r16 M17-M20, qf M25-M26, sf M29
+  // Right half: r32 M9-M16, r16 M21-M24, qf M27-M28, sf M30
+  const r32 = byStage("r32");
+  const r16 = byStage("r16");
+  const qf = byStage("qf");
+  const sf = byStage("sf");
+  const finalM = byStage("final")[0];
+  const third = byStage("third")[0];
+
+  const Col = ({ title, matches, w = "w-60" }: { title: string; matches: KOMatch[]; w?: string }) => (
+    <div className={cn("shrink-0 flex flex-col gap-3", w)}>
+      <h4 className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">{title}</h4>
+      <div className="flex flex-col gap-3 flex-1 justify-around">
+        {matches.map((m) => <MiniCard key={m.id} match={m} />)}
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-5">
-      <h2 className="text-2xl font-black">Bracket</h2>
-      <div className="card-surface p-4 text-sm text-muted-foreground leading-relaxed">
-        Clasifican los <span className="accent-green font-bold">dos mejores</span> de cada grupo más los{" "}
-        <span className="accent-blue font-bold">ocho mejores terceros</span> a la Ronda de 32.
-      </div>
-
-      {ROUNDS.map((r) => (
-        <section key={r.key} className="space-y-3">
-          <h3 className="text-lg font-bold flex items-center gap-2">
-            <span className="h-1.5 w-6 rounded-full bg-primary" />
-            {r.title}
-          </h3>
-          {r.key === "r32" ? (
-            <div className="space-y-3">
-              {r32.map((pair, i) => (
-                <BracketCard key={i} a={pair[0]} b={pair[1]} />
-              ))}
+      <div className="overflow-x-auto -mx-4 px-4 pb-3">
+        <div className="flex gap-3 min-w-max">
+          <Col title="R32 · Izquierda" matches={r32.slice(0, 8)} />
+          <Col title="Octavos" matches={r16.slice(0, 4)} />
+          <Col title="Cuartos" matches={qf.slice(0, 2)} />
+          <Col title="Semifinal" matches={[sf[0]]} w="w-56" />
+          <div className="shrink-0 w-64 flex flex-col items-center justify-center">
+            <h4 className="text-[11px] uppercase tracking-wider text-primary font-bold mb-2">Final</h4>
+            <div className="w-full">
+              <MiniCard match={finalM} highlight />
             </div>
-          ) : (
-            <div className="card-surface p-5 text-center text-sm text-muted-foreground">
-              Por definir según resultados anteriores
-            </div>
-          )}
-        </section>
-      ))}
-    </div>
-  );
-}
-
-function BracketCard({ a, b }: { a: Slot; b: Slot }) {
-  return (
-    <div className="card-surface p-3 space-y-2">
-      <SlotRow s={a} />
-      <div className="h-px bg-border" />
-      <SlotRow s={b} />
-    </div>
-  );
-}
-
-function SlotRow({ s }: { s: Slot }) {
-  return (
-    <div className="flex items-center justify-between gap-3 py-1.5">
-      <div className="flex items-center gap-3 min-w-0">
-        <span className="text-2xl">{s.flag ?? "❔"}</span>
-        <div className="min-w-0">
-          <div className="font-semibold truncate">{s.name ?? "—"}</div>
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
+          </div>
+          <Col title="Semifinal" matches={[sf[1]]} w="w-56" />
+          <Col title="Cuartos" matches={qf.slice(2)} />
+          <Col title="Octavos" matches={r16.slice(4)} />
+          <Col title="R32 · Derecha" matches={r32.slice(8)} />
         </div>
       </div>
-      <div className={cn("w-9 h-9 rounded-lg bg-muted flex items-center justify-center font-black")}>-</div>
+
+      <section className="space-y-3">
+        <h3 className="text-lg font-bold flex items-center gap-2">
+          <span className="h-1.5 w-6 rounded-full bg-accent" />
+          Tercer puesto
+        </h3>
+        <KOCard match={third} />
+      </section>
+
+      <ChampionCard />
+    </div>
+  );
+}
+
+// ============ KO MATCH CARD ============
+function KOCard({ match, compact = false }: { match: KOMatch; compact?: boolean }) {
+  const { data, setKO } = useTournament();
+  const [editing, setEditing] = useState(false);
+
+  const home = resolveSlot(data, match.homeFrom);
+  const away = resolveSlot(data, match.awayFrom);
+  const { winner } = koWinnerLoser(match);
+  const played = match.homeScore !== null && match.awayScore !== null;
+  const tied = played && match.homeScore === match.awayScore;
+  const status = !played
+    ? "Pendiente"
+    : tied && winner === null
+      ? "Definir penales"
+      : winner
+        ? "Finalizado"
+        : "En vivo";
+
+  const isFinal = match.stage === "final";
+
+  return (
+    <div className={cn(
+      "card-surface p-4 space-y-3 relative overflow-hidden",
+      isFinal && "ring-2 ring-primary/60 shadow-glow"
+    )}>
+      <div className="flex items-center justify-between text-[11px] uppercase tracking-wider">
+        <span className="font-bold text-foreground/80">Partido {match.number}</span>
+        <span className="text-muted-foreground">{ROUND_TITLES[match.stage]}</span>
+        <span className={cn(
+          "px-2 py-0.5 rounded-md font-semibold",
+          status === "Finalizado" && "bg-secondary/20 text-secondary",
+          status === "Pendiente" && "bg-muted text-muted-foreground",
+          status === "Definir penales" && "bg-primary/20 text-primary",
+        )}>{status}</span>
+      </div>
+
+      <KOSide
+        team={home}
+        ref={match.homeFrom}
+        score={match.homeScore}
+        pens={match.pensHome}
+        showPens={tied}
+        win={winner === "home"}
+      />
+      <div className="h-px bg-border" />
+      <KOSide
+        team={away}
+        ref={match.awayFrom}
+        score={match.awayScore}
+        pens={match.pensAway}
+        showPens={tied}
+        win={winner === "away"}
+      />
+
+      <div className="flex gap-2 pt-1">
+        <button
+          onClick={() => setEditing((e) => !e)}
+          className="text-xs px-3 h-8 rounded-lg bg-muted font-semibold hover:bg-muted/70"
+        >
+          {editing ? "Cerrar" : "Editar marcador"}
+        </button>
+        {played && (
+          <button
+            onClick={() => setKO(match.id, { homeScore: null, awayScore: null, pensHome: null, pensAway: null })}
+            className="text-xs px-3 h-8 rounded-lg bg-muted font-semibold hover:bg-muted/70"
+          >
+            Limpiar
+          </button>
+        )}
+      </div>
+
+      {editing && (
+        <div className="rounded-xl bg-background/50 p-3 space-y-2 border border-border">
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <ScoreField label={`${home?.name ?? "Local"} - goles`} value={match.homeScore}
+              onChange={(v) => setKO(match.id, { homeScore: v })} />
+            <ScoreField label={`${away?.name ?? "Visitante"} - goles`} value={match.awayScore}
+              onChange={(v) => setKO(match.id, { awayScore: v })} />
+            {tied && (
+              <>
+                <ScoreField label="Penales local" value={match.pensHome}
+                  onChange={(v) => setKO(match.id, { pensHome: v })} />
+                <ScoreField label="Penales visitante" value={match.pensAway}
+                  onChange={(v) => setKO(match.id, { pensAway: v })} />
+              </>
+            )}
+          </div>
+          {tied && (match.pensHome === null || match.pensAway === null || match.pensHome === match.pensAway) && (
+            <p className="text-[11px] text-primary">Empate: ingresa penales distintos para avanzar.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function KOSide({
+  team, ref, score, pens, showPens, win,
+}: {
+  team?: { name: string; flag: string };
+  ref: SlotRef;
+  score: number | null;
+  pens: number | null;
+  showPens: boolean;
+  win: boolean;
+}) {
+  return (
+    <div className={cn(
+      "flex items-center justify-between gap-3 rounded-xl px-2 py-1.5 transition",
+      win && "bg-win ring-1 ring-secondary/50"
+    )}>
+      <div className="flex items-center gap-3 min-w-0">
+        <span className="text-3xl leading-none">{team?.flag ?? "❔"}</span>
+        <div className="min-w-0">
+          <div className={cn("font-bold truncate text-sm", win && "accent-green")}>
+            {team?.name ?? "Por definir"}
+          </div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{slotLabel(ref)}</div>
+        </div>
+      </div>
+      <div className="flex items-center gap-1">
+        <div className={cn(
+          "w-10 h-10 rounded-lg flex items-center justify-center font-black text-lg",
+          win ? "bg-secondary text-secondary-foreground" : "bg-muted"
+        )}>
+          {score ?? "-"}
+        </div>
+        {showPens && (
+          <div className="text-xs font-bold text-muted-foreground">
+            ({pens ?? "-"})
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ScoreField({ label, value, onChange }: { label: string; value: number | null; onChange: (v: number | null) => void }) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-muted-foreground">{label}</span>
+      <input
+        type="number" min={0} inputMode="numeric"
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value === "" ? null : Math.max(0, parseInt(e.target.value)))}
+        className="h-9 rounded-lg bg-muted text-center font-bold border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+      />
+    </label>
+  );
+}
+
+// ============ MINI CARD (Cuadro view) ============
+function MiniCard({ match, highlight = false }: { match: KOMatch; highlight?: boolean }) {
+  const { data } = useTournament();
+  const home = resolveSlot(data, match.homeFrom);
+  const away = resolveSlot(data, match.awayFrom);
+  const { winner } = koWinnerLoser(match);
+
+  const Row = ({ team, ref, score, win }: { team?: { name: string; flag: string }; ref: SlotRef; score: number | null; win: boolean }) => (
+    <div className={cn(
+      "flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-xs",
+      win && "bg-secondary/20"
+    )}>
+      <div className="flex items-center gap-1.5 min-w-0">
+        <span className="text-base">{team?.flag ?? "❔"}</span>
+        <span className={cn("truncate font-semibold", win && "accent-green")}>
+          {team?.name ?? slotLabel(ref)}
+        </span>
+      </div>
+      <span className={cn("font-black tabular-nums", win && "accent-green")}>{score ?? "-"}</span>
+    </div>
+  );
+
+  return (
+    <div className={cn(
+      "card-surface p-2 space-y-1",
+      highlight && "ring-2 ring-primary shadow-glow bg-hero/10"
+    )}>
+      <div className="flex items-center justify-between px-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+        <span className="font-bold">P{match.number}</span>
+        <span>{ROUND_TITLES[match.stage]}</span>
+      </div>
+      <Row team={home} ref={match.homeFrom} score={match.homeScore} win={winner === "home"} />
+      <Row team={away} ref={match.awayFrom} score={match.awayScore} win={winner === "away"} />
+    </div>
+  );
+}
+
+// ============ CHAMPION ============
+function ChampionCard() {
+  const { data } = useTournament();
+  const final = data.knockout.find((m) => m.id === "M32")!;
+  const { winner } = koWinnerLoser(final);
+  if (!winner) return null;
+  const champ = resolveSlot(data, winner === "home" ? final.homeFrom : final.awayFrom);
+  if (!champ) return null;
+  return (
+    <div className="card-surface p-6 text-center space-y-2 ring-2 ring-secondary shadow-glow bg-win">
+      <div className="text-xs uppercase tracking-widest accent-green font-bold">Campeón</div>
+      <div className="text-5xl">{champ.flag}</div>
+      <div className="text-2xl font-black">{champ.name}</div>
     </div>
   );
 }
