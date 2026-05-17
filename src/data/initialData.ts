@@ -32,18 +32,18 @@ export interface AppData {
 
 // 12 groups A-L with 4 teams each (plausible names + emoji flags)
 const groupsRaw: Record<string, [string, string][]> = {
-  A: [["México", "🇲🇽"], ["Canadá", "🇨🇦"], ["Marruecos", "🇲🇦"], ["Uzbekistán", "🇺🇿"]],
-  B: [["Estados Unidos", "🇺🇸"], ["Colombia", "🇨🇴"], ["Senegal", "🇸🇳"], ["Polonia", "🇵🇱"]],
-  C: [["Argentina", "🇦🇷"], ["Croacia", "🇭🇷"], ["Japón", "🇯🇵"], ["Túnez", "🇹🇳"]],
-  D: [["Francia", "🇫🇷"], ["Australia", "🇦🇺"], ["Egipto", "🇪🇬"], ["Ecuador", "🇪🇨"]],
-  E: [["España", "🇪🇸"], ["Suiza", "🇨🇭"], ["Corea del Sur", "🇰🇷"], ["Catar", "🇶🇦"]],
-  F: [["Brasil", "🇧🇷"], ["Uruguay", "🇺🇾"], ["Dinamarca", "🇩🇰"], ["Ghana", "🇬🇭"]],
-  G: [["Inglaterra", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"], ["Países Bajos", "🇳🇱"], ["Irán", "🇮🇷"], ["Nueva Zelanda", "🇳🇿"]],
-  H: [["Portugal", "🇵🇹"], ["Bélgica", "🇧🇪"], ["Argelia", "🇩🇿"], ["Costa Rica", "🇨🇷"]],
-  I: [["Alemania", "🇩🇪"], ["Serbia", "🇷🇸"], ["Camerún", "🇨🇲"], ["Panamá", "🇵🇦"]],
-  J: [["Italia", "🇮🇹"], ["Chile", "🇨🇱"], ["Nigeria", "🇳🇬"], ["Jordania", "🇯🇴"]],
-  K: [["Países Bajos B", "🇳🇱"], ["Perú", "🇵🇪"], ["Sudáfrica", "🇿🇦"], ["Arabia Saudita", "🇸🇦"]],
-  L: [["Bélgica B", "🇧🇪"], ["Paraguay", "🇵🇾"], ["Costa de Marfil", "🇨🇮"], ["Cabo Verde", "🇨🇻"]],
+  A: [["México", "🇲🇽"], ["Sudáfrica", "🇿🇦"], ["Corea del Sur", "🇰🇷"], ["República Checa", "🇨🇿"]],
+  B: [["Canadá", "🇨🇦"], ["Bosnia y Herzegovina", "🇧🇦"], ["Catar", "🇶🇦"], ["Suiza", "🇨🇭"]],
+  C: [["Brasil", "🇧🇷"], ["Marruecos", "🇲🇦"], ["Haití", "🇭🇹"], ["Escocia", "🏴󠁧󠁢󠁳󠁣󠁴󠁿"]],
+  D: [["Estados Unidos", "🇺🇸"], ["Paraguay", "🇵🇾"], ["Australia", "🇦🇺"], ["Turquía", "🇹🇷"]],
+  E: [["Alemania", "🇩🇪"], ["Curazao", "🇨🇼"], ["Costa de Marfil", "🇨🇮"], ["Ecuador", "🇪🇨"]],
+  F: [["Países Bajos", "🇳🇱"], ["Japón", "🇯🇵"], ["Suecia", "🇸🇪"], ["Túnez", "🇹🇳"]],
+  G: [["Bélgica", "🇧🇪"], ["Egipto", "🇪🇬"], ["Irán", "🇮🇷"], ["Nueva Zelanda", "🇳🇿"]],
+  H: [["España", "🇪🇸"], ["Cabo Verde", "🇨🇻"], ["Arabia Saudita", "🇸🇦"], ["Uruguay", "🇺🇾"]],
+  I: [["Francia", "🇫🇷"], ["Senegal", "🇸🇳"], ["Irak", "🇮🇶"], ["Noruega", "🇳🇴"]],
+  J: [["Argentina", "🇦🇷"], ["Argelia", "🇩🇿"], ["Austria", "🇦🇹"], ["Jordania", "🇯🇴"]],
+  K: [["Portugal", "🇵🇹"], ["RD Congo", "🇨🇩"], ["Uzbekistán", "🇺🇿"], ["Colombia", "🇨🇴"]],
+  L: [["Inglaterra", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"], ["Croacia", "🇭🇷"], ["Ghana", "🇬🇭"], ["Panamá", "🇵🇦"]],
 };
 
 const teams: Team[] = [];
