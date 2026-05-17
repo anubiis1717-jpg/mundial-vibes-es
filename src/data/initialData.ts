@@ -32,18 +32,18 @@ export interface AppData {
 
 // 12 groups A-L with 4 teams each (plausible names + emoji flags)
 const groupsRaw: Record<string, [string, string][]> = {
-  A: [["México", "🇲🇽"], ["Canadá", "🇨🇦"], ["Marruecos", "🇲🇦"], ["Uzbekistán", "🇺🇿"]],
-  B: [["Estados Unidos", "🇺🇸"], ["Colombia", "🇨🇴"], ["Senegal", "🇸🇳"], ["Polonia", "🇵🇱"]],
-  C: [["Argentina", "🇦🇷"], ["Croacia", "🇭🇷"], ["Japón", "🇯🇵"], ["Túnez", "🇹🇳"]],
-  D: [["Francia", "🇫🇷"], ["Australia", "🇦🇺"], ["Egipto", "🇪🇬"], ["Ecuador", "🇪🇨"]],
-  E: [["España", "🇪🇸"], ["Suiza", "🇨🇭"], ["Corea del Sur", "🇰🇷"], ["Catar", "🇶🇦"]],
-  F: [["Brasil", "🇧🇷"], ["Uruguay", "🇺🇾"], ["Dinamarca", "🇩🇰"], ["Ghana", "🇬🇭"]],
-  G: [["Inglaterra", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"], ["Países Bajos", "🇳🇱"], ["Irán", "🇮🇷"], ["Nueva Zelanda", "🇳🇿"]],
-  H: [["Portugal", "🇵🇹"], ["Bélgica", "🇧🇪"], ["Argelia", "🇩🇿"], ["Costa Rica", "🇨🇷"]],
-  I: [["Alemania", "🇩🇪"], ["Serbia", "🇷🇸"], ["Camerún", "🇨🇲"], ["Panamá", "🇵🇦"]],
-  J: [["Italia", "🇮🇹"], ["Chile", "🇨🇱"], ["Nigeria", "🇳🇬"], ["Jordania", "🇯🇴"]],
-  K: [["Países Bajos B", "🇳🇱"], ["Perú", "🇵🇪"], ["Sudáfrica", "🇿🇦"], ["Arabia Saudita", "🇸🇦"]],
-  L: [["Bélgica B", "🇧🇪"], ["Paraguay", "🇵🇾"], ["Costa de Marfil", "🇨🇮"], ["Cabo Verde", "🇨🇻"]],
+  A: [["México", "🇲🇽"], ["Sudáfrica", "🇿🇦"], ["Corea del Sur", "🇰🇷"], ["República Checa", "🇨🇿"]],
+  B: [["Canadá", "🇨🇦"], ["Bosnia y Herzegovina", "🇧🇦"], ["Catar", "🇶🇦"], ["Suiza", "🇨🇭"]],
+  C: [["Brasil", "🇧🇷"], ["Marruecos", "🇲🇦"], ["Haití", "🇭🇹"], ["Escocia", "🏴󠁧󠁢󠁳󠁣󠁴󠁿"]],
+  D: [["Estados Unidos", "🇺🇸"], ["Paraguay", "🇵🇾"], ["Australia", "🇦🇺"], ["Turquía", "🇹🇷"]],
+  E: [["Alemania", "🇩🇪"], ["Curazao", "🇨🇼"], ["Costa de Marfil", "🇨🇮"], ["Ecuador", "🇪🇨"]],
+  F: [["Países Bajos", "🇳🇱"], ["Japón", "🇯🇵"], ["Suecia", "🇸🇪"], ["Túnez", "🇹🇳"]],
+  G: [["Bélgica", "🇧🇪"], ["Egipto", "🇪🇬"], ["Irán", "🇮🇷"], ["Nueva Zelanda", "🇳🇿"]],
+  H: [["España", "🇪🇸"], ["Cabo Verde", "🇨🇻"], ["Arabia Saudita", "🇸🇦"], ["Uruguay", "🇺🇾"]],
+  I: [["Francia", "🇫🇷"], ["Senegal", "🇸🇳"], ["Irak", "🇮🇶"], ["Noruega", "🇳🇴"]],
+  J: [["Argentina", "🇦🇷"], ["Argelia", "🇩🇿"], ["Austria", "🇦🇹"], ["Jordania", "🇯🇴"]],
+  K: [["Portugal", "🇵🇹"], ["RD Congo", "🇨🇩"], ["Uzbekistán", "🇺🇿"], ["Colombia", "🇨🇴"]],
+  L: [["Inglaterra", "🏴󠁧󠁢󠁥󠁮󠁧󠁿"], ["Croacia", "🇭🇷"], ["Ghana", "🇬🇭"], ["Panamá", "🇵🇦"]],
 };
 
 const teams: Team[] = [];
@@ -76,14 +76,14 @@ Object.entries(groupsRaw).forEach(([g, ts]) => {
 
 // A few sample scorers/assists
 const players: Player[] = [
-  { id: "p1", name: "Lionel Messi", teamId: "C-argentina", goals: 0, assists: 0 },
-  { id: "p2", name: "Kylian Mbappé", teamId: "D-francia", goals: 0, assists: 0 },
-  { id: "p3", name: "Vinícius Jr.", teamId: "F-brasil", goals: 0, assists: 0 },
-  { id: "p4", name: "Lamine Yamal", teamId: "E-espana", goals: 0, assists: 0 },
-  { id: "p5", name: "Luis Díaz", teamId: "B-colombia", goals: 0, assists: 0 },
-  { id: "p6", name: "Harry Kane", teamId: "G-inglaterra", goals: 0, assists: 0 },
-  { id: "p7", name: "Cristiano Ronaldo", teamId: "H-portugal", goals: 0, assists: 0 },
-  { id: "p8", name: "Jamal Musiala", teamId: "I-alemania", goals: 0, assists: 0 },
+  { id: "p1", name: "Lionel Messi", teamId: "J-argentina", goals: 0, assists: 0 },
+  { id: "p2", name: "Kylian Mbappé", teamId: "I-francia", goals: 0, assists: 0 },
+  { id: "p3", name: "Vinícius Jr.", teamId: "C-brasil", goals: 0, assists: 0 },
+  { id: "p4", name: "Lamine Yamal", teamId: "H-espana", goals: 0, assists: 0 },
+  { id: "p5", name: "Luis Díaz", teamId: "K-colombia", goals: 0, assists: 0 },
+  { id: "p6", name: "Harry Kane", teamId: "L-inglaterra", goals: 0, assists: 0 },
+  { id: "p7", name: "Cristiano Ronaldo", teamId: "K-portugal", goals: 0, assists: 0 },
+  { id: "p8", name: "Jamal Musiala", teamId: "E-alemania", goals: 0, assists: 0 },
 ];
 
 export const INITIAL_DATA: AppData = { teams, matches, players };
