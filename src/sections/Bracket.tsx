@@ -167,7 +167,7 @@ function KOCard({ match, compact = false }: { match: KOMatch; compact?: boolean 
 
       <KOSide
         team={home}
-        ref={match.homeFrom}
+        slot={match.homeFrom}
         score={match.homeScore}
         pens={match.pensHome}
         showPens={tied}
@@ -176,7 +176,7 @@ function KOCard({ match, compact = false }: { match: KOMatch; compact?: boolean 
       <div className="h-px bg-border" />
       <KOSide
         team={away}
-        ref={match.awayFrom}
+        slot={match.awayFrom}
         score={match.awayScore}
         pens={match.pensAway}
         showPens={tied}
@@ -229,7 +229,7 @@ function KOSide({
   team, ref, score, pens, showPens, win,
 }: {
   team?: { name: string; flag: string };
-  ref: SlotRef;
+  slot: SlotRef;
   score: number | null;
   pens: number | null;
   showPens: boolean;
@@ -246,7 +246,7 @@ function KOSide({
           <div className={cn("font-bold truncate text-sm", win && "accent-green")}>
             {team?.name ?? "Por definir"}
           </div>
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{slotLabel(ref)}</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{slotLabel(slot)}</div>
         </div>
       </div>
       <div className="flex items-center gap-1">
@@ -287,7 +287,7 @@ function MiniCard({ match, highlight = false }: { match: KOMatch; highlight?: bo
   const away = resolveSlot(data, match.awayFrom);
   const { winner } = koWinnerLoser(match);
 
-  const Row = ({ team, ref, score, win }: { team?: { name: string; flag: string }; ref: SlotRef; score: number | null; win: boolean }) => (
+  const Row = ({ team, ref, score, win }: { team?: { name: string; flag: string }; slot: SlotRef; score: number | null; win: boolean }) => (
     <div className={cn(
       "flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-xs",
       win && "bg-secondary/20"
@@ -295,7 +295,7 @@ function MiniCard({ match, highlight = false }: { match: KOMatch; highlight?: bo
       <div className="flex items-center gap-1.5 min-w-0">
         <span className="text-base">{team?.flag ?? "❔"}</span>
         <span className={cn("truncate font-semibold", win && "accent-green")}>
-          {team?.name ?? slotLabel(ref)}
+          {team?.name ?? slotLabel(slot)}
         </span>
       </div>
       <span className={cn("font-black tabular-nums", win && "accent-green")}>{score ?? "-"}</span>
@@ -311,8 +311,8 @@ function MiniCard({ match, highlight = false }: { match: KOMatch; highlight?: bo
         <span className="font-bold">P{match.number}</span>
         <span>{ROUND_TITLES[match.stage]}</span>
       </div>
-      <Row team={home} ref={match.homeFrom} score={match.homeScore} win={winner === "home"} />
-      <Row team={away} ref={match.awayFrom} score={match.awayScore} win={winner === "away"} />
+      <Row team={home} slot={match.homeFrom} score={match.homeScore} win={winner === "home"} />
+      <Row team={away} slot={match.awayFrom} score={match.awayScore} win={winner === "away"} />
     </div>
   );
 }
