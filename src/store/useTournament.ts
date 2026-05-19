@@ -50,7 +50,24 @@ export function useTournament() {
     state = d; persist();
   }, []);
 
-  const restore = useCallback(() => { state = JSON.parse(JSON.stringify(INITIAL_DATA)); persist(); }, []);
+  const restore = useCallback(() => {
+    try {
+      localStorage.removeItem(KEY);
+      Object.keys(localStorage)
+        .filter((k) => /mundial|bracket|knockout|qualified|thirds|champion|simulation|round|quarter|semi|final|third/i.test(k))
+        .forEach((k) => localStorage.removeItem(k));
+    } catch {}
+    state = JSON.parse(JSON.stringify(INITIAL_DATA));
+    persist();
+  }, []);
+
+  const clearBracket = useCallback(() => {
+    state = {
+      ...state,
+      knockout: JSON.parse(JSON.stringify(INITIAL_DATA.knockout)),
+    };
+    persist();
+  }, []);
 
   const simulateGroups = useCallback(() => {
     state = {
