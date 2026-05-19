@@ -18,8 +18,10 @@ export function Grupos() {
             key={g}
             onClick={() => setActive(g)}
             className={cn(
-              "shrink-0 w-12 h-12 rounded-xl font-black text-lg border border-border",
-              active === g ? "bg-primary text-primary-foreground shadow-[var(--shadow-glow)]" : "bg-card text-foreground"
+              "shrink-0 w-12 h-12 rounded-xl font-black text-lg border transition-all press",
+              active === g
+                ? "bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground border-primary/40 shadow-glow scale-105"
+                : "bg-card text-foreground border-white/5 hover:border-white/20"
             )}
           >
             {g}
