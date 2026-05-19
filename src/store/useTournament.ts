@@ -160,11 +160,19 @@ export function koWinnerLoser(m: KOMatch): { winner: "home" | "away" | null; los
   return { winner: null, loser: null };
 }
 
+export function groupComplete(data: AppData, group: string): boolean {
+  const ms = data.matches.filter((m) => m.stage === "group" && m.group === group);
+  return ms.length > 0 && ms.every((m) => m.homeScore !== null && m.awayScore !== null);
+}
+
 export function resolveSlot(data: AppData, ref: SlotRef): Team | undefined {
   if (ref.kind === "pos") {
+    if (!groupComplete(data, ref.group)) return undefined;
     return computeStandings(data, ref.group)[ref.pos - 1]?.team;
   }
   if (ref.kind === "third") {
+    const groups = "ABCDEFGHIJKL".split("");
+    if (!groups.every((g) => groupComplete(data, g))) return undefined;
     return bestThirds(data)[ref.index - 1]?.standing.team;
   }
   const src = data.knockout.find((k) => k.id === ref.matchId);
