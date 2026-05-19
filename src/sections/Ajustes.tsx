@@ -55,6 +55,9 @@ export function Ajustes() {
         <Btn onClick={() => { clearScores(); toast("Marcadores limpiados"); }} variant="muted">
           Limpiar marcadores
         </Btn>
+        <Btn onClick={() => { clearBracket(); toast.success("Bracket limpiado"); }} variant="blue">
+          Limpiar bracket
+        </Btn>
       </section>
 
       <section className="card-surface p-4">
