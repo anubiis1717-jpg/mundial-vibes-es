@@ -95,7 +95,7 @@ export function useTournament() {
     persist();
   }, []);
 
-  return { data: state, setMatch, setKO, setData, restore, simulateGroups, clearScores, updatePlayer };
+  return { data: state, setMatch, setKO, setData, restore, clearBracket, simulateGroups, clearScores, updatePlayer };
 }
 
 export function teamById(data: AppData, id: string): Team | undefined {
