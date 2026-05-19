@@ -14,20 +14,24 @@ const items: { id: Section; label: string; icon: any }[] = [
 
 export function BottomNav({ value, onChange }: { value: Section; onChange: (s: Section) => void }) {
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-card/95 backdrop-blur-lg pb-[env(safe-area-inset-bottom)]">
-      <ul className="grid grid-cols-6 max-w-xl mx-auto">
+    <nav className="fixed bottom-0 inset-x-0 z-50 pb-[env(safe-area-inset-bottom)]">
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-background/70 backdrop-blur-xl border-t border-white/5" />
+      <ul className="relative grid grid-cols-6 max-w-xl mx-auto">
         {items.map(({ id, label, icon: Icon }) => {
           const active = value === id;
           return (
-            <li key={id}>
+            <li key={id} className="relative">
               <button
                 onClick={() => onChange(id)}
                 className={cn(
-                  "w-full flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium transition-colors",
+                  "w-full flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-bold transition-all press",
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <Icon className={cn("h-5 w-5", active && "drop-shadow-[0_0_8px_hsl(var(--primary))]")} />
+                {active && (
+                  <span className="absolute -top-px left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-gradient-to-r from-primary via-[hsl(var(--primary-glow))] to-primary shadow-glow" />
+                )}
+                <Icon className={cn("h-5 w-5 transition-transform", active && "scale-110 drop-shadow-[0_0_10px_hsl(var(--primary))]")} />
                 {label}
               </button>
             </li>

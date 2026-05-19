@@ -326,10 +326,16 @@ function ChampionCard() {
   const champ = resolveSlot(data, winner === "home" ? final.homeFrom : final.awayFrom);
   if (!champ) return null;
   return (
-    <div className="card-surface p-6 text-center space-y-2 ring-2 ring-secondary shadow-glow bg-win">
-      <div className="text-xs uppercase tracking-widest accent-green font-bold">Campeón</div>
-      <div className="text-5xl">{champ.flag}</div>
-      <div className="text-2xl font-black">{champ.name}</div>
+    <div className="relative overflow-hidden rounded-3xl p-8 text-center space-y-3 shadow-glow-gold animate-fade-up">
+      <div className="absolute inset-0 bg-gold opacity-95" />
+      <div className="absolute inset-0 shimmer-overlay" />
+      <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/30 blur-3xl animate-float-glow" />
+      <div className="relative">
+        <div className="text-[10px] uppercase tracking-[0.4em] text-background/80 font-black">Campeón del Mundo</div>
+        <div className="text-7xl mt-3 animate-trophy">{champ.flag}</div>
+        <div className="text-3xl font-black mt-2 text-background tracking-tight">{champ.name}</div>
+        <div className="mt-3 inline-flex items-center gap-1 text-background/80 text-xs font-bold tracking-widest">★ ★ ★</div>
+      </div>
     </div>
   );
 }
