@@ -3,7 +3,7 @@ import { useTournament } from "@/store/useTournament";
 import { toast } from "sonner";
 
 export function Ajustes() {
-  const { data, setData, restore, simulateGroups, clearScores } = useTournament();
+  const { data, setData, restore, clearBracket, simulateGroups, clearScores } = useTournament();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const exportJSON = () => {
@@ -54,6 +54,9 @@ export function Ajustes() {
         </Btn>
         <Btn onClick={() => { clearScores(); toast("Marcadores limpiados"); }} variant="muted">
           Limpiar marcadores
+        </Btn>
+        <Btn onClick={() => { clearBracket(); toast.success("Bracket limpiado"); }} variant="blue">
+          Limpiar bracket
         </Btn>
       </section>
 

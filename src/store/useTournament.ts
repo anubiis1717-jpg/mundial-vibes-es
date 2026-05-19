@@ -50,7 +50,24 @@ export function useTournament() {
     state = d; persist();
   }, []);
 
-  const restore = useCallback(() => { state = JSON.parse(JSON.stringify(INITIAL_DATA)); persist(); }, []);
+  const restore = useCallback(() => {
+    try {
+      localStorage.removeItem(KEY);
+      Object.keys(localStorage)
+        .filter((k) => /mundial|bracket|knockout|qualified|thirds|champion|simulation|round|quarter|semi|final|third/i.test(k))
+        .forEach((k) => localStorage.removeItem(k));
+    } catch {}
+    state = JSON.parse(JSON.stringify(INITIAL_DATA));
+    persist();
+  }, []);
+
+  const clearBracket = useCallback(() => {
+    state = {
+      ...state,
+      knockout: JSON.parse(JSON.stringify(INITIAL_DATA.knockout)),
+    };
+    persist();
+  }, []);
 
   const simulateGroups = useCallback(() => {
     state = {
@@ -78,7 +95,7 @@ export function useTournament() {
     persist();
   }, []);
 
-  return { data: state, setMatch, setKO, setData, restore, simulateGroups, clearScores, updatePlayer };
+  return { data: state, setMatch, setKO, setData, restore, clearBracket, simulateGroups, clearScores, updatePlayer };
 }
 
 export function teamById(data: AppData, id: string): Team | undefined {
@@ -143,11 +160,19 @@ export function koWinnerLoser(m: KOMatch): { winner: "home" | "away" | null; los
   return { winner: null, loser: null };
 }
 
+export function groupComplete(data: AppData, group: string): boolean {
+  const ms = data.matches.filter((m) => m.stage === "group" && m.group === group);
+  return ms.length > 0 && ms.every((m) => m.homeScore !== null && m.awayScore !== null);
+}
+
 export function resolveSlot(data: AppData, ref: SlotRef): Team | undefined {
   if (ref.kind === "pos") {
+    if (!groupComplete(data, ref.group)) return undefined;
     return computeStandings(data, ref.group)[ref.pos - 1]?.team;
   }
   if (ref.kind === "third") {
+    const groups = "ABCDEFGHIJKL".split("");
+    if (!groups.every((g) => groupComplete(data, g))) return undefined;
     return bestThirds(data)[ref.index - 1]?.standing.team;
   }
   const src = data.knockout.find((k) => k.id === ref.matchId);
