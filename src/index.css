@@ -128,27 +128,6 @@
   .no-scrollbar { scrollbar-width: none; }
   .press { @apply transition-transform active:scale-[0.97]; }
 }
-  .accent-red { color: hsl(var(--primary)); }
-  .accent-green { color: hsl(var(--secondary)); }
-  .accent-blue { color: hsl(var(--accent)); }
-  .accent-gold { color: hsl(var(--gold)); }
-  .bg-hero { background: var(--gradient-hero); }
-  .bg-win { background: var(--gradient-win); }
-  .bg-gold { background: var(--gradient-gold); }
-  .shadow-glow { box-shadow: var(--shadow-glow); }
-  .shadow-glow-blue { box-shadow: var(--shadow-glow-blue); }
-  .shadow-glow-green { box-shadow: var(--shadow-glow-green); }
-  .shadow-glow-gold { box-shadow: var(--shadow-glow-gold); }
-  .text-stroke-gold {
-    background: var(--gradient-gold);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { scrollbar-width: none; }
-  .press { @apply transition-transform active:scale-[0.97]; }
-}
 
 @keyframes pulse-live {
   0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.6); }
