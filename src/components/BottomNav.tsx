@@ -15,7 +15,7 @@ const items: { id: Section; label: string; icon: any }[] = [
 export function BottomNav({ value, onChange }: { value: Section; onChange: (s: Section) => void }) {
   return (
     <nav className="fixed bottom-3 inset-x-3 z-50 pb-[env(safe-area-inset-bottom)] max-w-xl md:mx-auto">
-      <div className="absolute inset-0 rounded-2xl bg-background/30 backdrop-blur-2xl border border-white/10 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)]" />
+      <div className="absolute inset-0 rounded-2xl border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.45)]" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(22px) saturate(160%)", WebkitBackdropFilter: "blur(22px) saturate(160%)" }} />
       <ul className="relative grid grid-cols-6 rounded-2xl overflow-hidden">
         {items.map(({ id, label, icon: Icon }) => {
           const active = value === id;

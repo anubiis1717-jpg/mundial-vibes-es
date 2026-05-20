@@ -65,16 +65,23 @@ function Stat({ icon: Icon, label, value, tone }: any) {
 }
 
 function BigButton({ label, onClick, variant }: { label: string; onClick: () => void; variant: "red" | "green" | "blue" | "gold" }) {
-  const cls = {
-    red: "bg-gradient-to-br from-primary to-[hsl(var(--primary-glow))] text-primary-foreground shadow-glow",
-    green: "bg-gradient-to-br from-secondary to-[hsl(var(--secondary-glow))] text-secondary-foreground shadow-glow-green",
-    blue: "bg-gradient-to-br from-accent to-[hsl(var(--accent-glow))] text-accent-foreground shadow-glow-blue",
-    gold: "bg-gold text-background shadow-glow-gold",
+  const glow = {
+    red: "glass-btn glass-btn-red",
+    green: "glass-btn glass-btn-green",
+    blue: "glass-btn glass-btn-blue",
+    gold: "glass-btn glass-btn-gold",
+  }[variant];
+  const tint = {
+    red: "from-primary/25",
+    green: "from-secondary/25",
+    blue: "from-accent/25",
+    gold: "from-[hsl(var(--gold))]/25",
   }[variant];
   return (
-    <button onClick={onClick} className={`${cls} rounded-2xl py-5 text-base font-black tracking-wide press relative overflow-hidden`}>
+    <button onClick={onClick} className={`${glow} py-5 text-base font-black tracking-wide press`}>
+      <span className={`absolute inset-0 bg-gradient-to-br ${tint} to-transparent`} />
+      <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
       <span className="relative z-10">{label}</span>
-      <span className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
     </button>
   );
 }
