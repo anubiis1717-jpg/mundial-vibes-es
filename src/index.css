@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 224 40% 5%;
+    --background: 224 45% 4%;
     --foreground: 0 0% 98%;
 
     --card: 224 32% 10%;
@@ -13,47 +13,43 @@
     --popover: 224 32% 10%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 0 90% 58%;
-    --primary-glow: 0 95% 68%;
+    --primary: 0 92% 60%;
+    --primary-glow: 0 100% 70%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 142 76% 45%;
-    --secondary-glow: 152 85% 55%;
+    --secondary: 142 80% 48%;
+    --secondary-glow: 152 90% 58%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 217 95% 60%;
-    --accent-glow: 200 100% 65%;
+    --accent: 215 100% 62%;
+    --accent-glow: 200 100% 68%;
     --accent-foreground: 0 0% 100%;
 
-    --gold: 42 90% 60%;
-    --gold-glow: 48 100% 70%;
+    --gold: 42 95% 60%;
+    --gold-glow: 48 100% 72%;
 
     --muted: 224 25% 16%;
-    --muted-foreground: 220 14% 70%;
+    --muted-foreground: 220 14% 75%;
 
     --destructive: 0 90% 58%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 224 25% 22%;
     --input: 224 25% 18%;
-    --ring: 0 90% 58%;
+    --ring: 0 92% 60%;
 
     --radius: 1.1rem;
 
-    --gradient-hero: linear-gradient(135deg, hsl(0 90% 55%) 0%, hsl(330 85% 55%) 45%, hsl(217 95% 60%) 100%);
-    --gradient-card: linear-gradient(155deg, hsl(224 32% 13% / 0.95), hsl(224 40% 7% / 0.95));
-    --gradient-win: linear-gradient(135deg, hsl(142 76% 45% / 0.28), hsl(142 76% 45% / 0.04));
-    --gradient-gold: linear-gradient(135deg, hsl(42 90% 55%), hsl(48 100% 70%), hsl(38 90% 50%));
-    --gradient-aurora:
-      radial-gradient(60% 50% at 15% 10%, hsl(0 90% 55% / 0.18), transparent 70%),
-      radial-gradient(55% 45% at 85% 20%, hsl(217 95% 60% / 0.18), transparent 70%),
-      radial-gradient(70% 60% at 50% 100%, hsl(142 76% 45% / 0.15), transparent 70%);
+    --gradient-hero: linear-gradient(135deg, hsl(0 92% 55% / 0.92) 0%, hsl(330 85% 55% / 0.85) 45%, hsl(217 100% 60% / 0.9) 100%);
+    --gradient-card: linear-gradient(155deg, hsl(224 32% 14% / 0.55), hsl(224 40% 6% / 0.45));
+    --gradient-win: linear-gradient(135deg, hsl(142 76% 45% / 0.35), hsl(142 76% 45% / 0.05));
+    --gradient-gold: linear-gradient(135deg, hsl(42 95% 55%), hsl(48 100% 72%), hsl(38 90% 50%));
 
-    --shadow-glow: 0 10px 50px -10px hsl(0 90% 58% / 0.55);
-    --shadow-glow-blue: 0 10px 50px -10px hsl(217 95% 60% / 0.5);
-    --shadow-glow-green: 0 10px 50px -10px hsl(142 76% 45% / 0.5);
-    --shadow-glow-gold: 0 10px 50px -10px hsl(42 90% 60% / 0.6);
-    --shadow-card: 0 8px 28px -8px hsl(0 0% 0% / 0.6);
+    --shadow-glow: 0 10px 50px -10px hsl(0 92% 60% / 0.55);
+    --shadow-glow-blue: 0 10px 50px -10px hsl(215 100% 62% / 0.55);
+    --shadow-glow-green: 0 10px 50px -10px hsl(142 80% 48% / 0.55);
+    --shadow-glow-gold: 0 10px 50px -10px hsl(42 95% 60% / 0.65);
+    --shadow-card: 0 10px 32px -8px hsl(0 0% 0% / 0.7);
 
     --sidebar-background: 224 40% 5%;
     --sidebar-foreground: 0 0% 98%;
@@ -70,25 +66,43 @@
   * { @apply border-border; }
   html { scroll-behavior: smooth; }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-tap-highlight-color: transparent;
     background-color: hsl(var(--background));
-    background-image:
-      var(--gradient-aurora),
-      radial-gradient(1px 1px at 25% 30%, hsl(0 0% 100% / 0.04) 1px, transparent 1px),
-      radial-gradient(1px 1px at 70% 80%, hsl(0 0% 100% / 0.03) 1px, transparent 1px);
-    background-attachment: fixed;
-    background-size: 100% 100%, 40px 40px, 60px 60px;
     min-height: 100vh;
+    position: relative;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-image: url('/src/assets/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: saturate(1.05);
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(60% 50% at 15% 10%, hsl(0 92% 55% / 0.18), transparent 70%),
+      radial-gradient(55% 45% at 85% 20%, hsl(215 100% 60% / 0.18), transparent 70%),
+      radial-gradient(70% 60% at 50% 100%, hsl(142 80% 45% / 0.16), transparent 70%),
+      linear-gradient(180deg, hsl(224 45% 4% / 0.55) 0%, hsl(224 45% 4% / 0.72) 100%);
+    pointer-events: none;
   }
 }
 
 @layer components {
   .card-surface {
     background: var(--gradient-card);
-    box-shadow: var(--shadow-card);
-    @apply rounded-2xl border border-white/5 backdrop-blur-xl relative;
+    box-shadow: var(--shadow-card), inset 0 1px 0 0 hsl(0 0% 100% / 0.06);
+    @apply rounded-2xl border border-white/10 backdrop-blur-2xl relative;
   }
   .card-surface::before {
     content: "";
@@ -96,7 +110,7 @@
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, hsl(0 0% 100% / 0.12), hsl(0 0% 100% / 0.02) 40%, transparent 70%);
+    background: linear-gradient(135deg, hsl(0 0% 100% / 0.22), hsl(0 0% 100% / 0.04) 40%, transparent 70%);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -144,11 +158,16 @@
   0%, 100% { filter: drop-shadow(0 0 8px hsl(var(--gold) / 0.6)); }
   50% { filter: drop-shadow(0 0 20px hsl(var(--gold) / 0.95)); }
 }
+@keyframes glow-breath {
+  0%, 100% { box-shadow: 0 0 20px -4px hsl(var(--gold) / 0.25); }
+  50% { box-shadow: 0 0 40px -2px hsl(var(--gold) / 0.55); }
+}
 
 .animate-live { animation: pulse-live 1.6s ease-out infinite; }
-.animate-fade-up { animation: fade-up 0.35s ease-out both; }
+.animate-fade-up { animation: fade-up 0.4s ease-out both; }
 .animate-float-glow { animation: float-glow 3s ease-in-out infinite; }
 .animate-trophy { animation: trophy-pulse 2.2s ease-in-out infinite; }
+.animate-glow-breath { animation: glow-breath 3.5s ease-in-out infinite; }
 .shimmer-overlay {
   position: relative;
   overflow: hidden;
@@ -157,7 +176,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(110deg, transparent 30%, hsl(0 0% 100% / 0.12) 50%, transparent 70%);
+  background: linear-gradient(110deg, transparent 30%, hsl(0 0% 100% / 0.14) 50%, transparent 70%);
   animation: shimmer 3.5s ease-in-out infinite;
   pointer-events: none;
 }
