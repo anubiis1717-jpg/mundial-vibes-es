@@ -71,31 +71,8 @@
     -webkit-tap-highlight-color: transparent;
     background-color: hsl(var(--background));
     min-height: 100vh;
-    position: relative;
   }
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -2;
-    background-image: url('/src/assets/hero-bg.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    filter: saturate(1.05);
-  }
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background:
-      radial-gradient(60% 50% at 15% 10%, hsl(0 92% 55% / 0.18), transparent 70%),
-      radial-gradient(55% 45% at 85% 20%, hsl(215 100% 60% / 0.18), transparent 70%),
-      radial-gradient(70% 60% at 50% 100%, hsl(142 80% 45% / 0.16), transparent 70%),
-      linear-gradient(180deg, hsl(224 45% 4% / 0.55) 0%, hsl(224 45% 4% / 0.72) 100%);
-    pointer-events: none;
-  }
+
 }
 
 @layer components {
