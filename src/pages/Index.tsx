@@ -11,8 +11,8 @@ const Index = () => {
   const [section, setSection] = useState<Section>("inicio");
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <main className="max-w-xl mx-auto px-4 pt-6 pb-28">
+    <div className="min-h-screen text-foreground">
+      <main className="max-w-xl mx-auto px-4 pt-6 pb-32">
         {section === "inicio" && <Inicio go={setSection} />}
         {section === "grupos" && <Grupos />}
         {section === "partidos" && <Partidos />}
