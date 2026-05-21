@@ -53,9 +53,9 @@ export function Inicio({ go }: { go: (s: any) => void }) {
             </div>
             <div className="flex flex-col items-center gap-1 px-2">
               <div className="text-[10px] font-bold text-muted-foreground">
-                {next.date ? fmtDateCol(next.date).toUpperCase() : "POR CONFIRMAR"}
+                {next.date ? formatColombiaDate(next.date).split(" · ")[0].toUpperCase() : "POR CONFIRMAR"}
               </div>
-              <div className="text-[11px] accent-gold font-bold">{next.date ? fmtTimeCol(next.date) : "--:--"}</div>
+              <div className="text-[11px] accent-gold font-bold">{next.date ? formatColombiaDate(next.date).split(" · ")[1]?.replace(" COL", "") ?? "--:--" : "--:--"}</div>
               <div className="text-2xl font-black">VS</div>
               <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Hora Colombia</div>
             </div>
