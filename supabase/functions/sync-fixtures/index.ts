@@ -49,15 +49,16 @@ Deno.serve(async (req) => {
     let lastStatus = 0;
     let lastDetails = "";
 
+    const isRapid = apiHost.includes("rapidapi");
+    const pathPrefix = isRapid ? "/v3" : "";
+    const authHeaders: Record<string, string> = isRapid
+      ? { "x-rapidapi-key": apiKey, "x-rapidapi-host": apiHost }
+      : { "x-apisports-key": apiKey };
+
     for (const season of seasons) {
-      const apiUrl = `https://${apiHost}/v3/fixtures?league=${LEAGUE_ID}&season=${season}`;
+      const apiUrl = `https://${apiHost}${pathPrefix}/fixtures?league=${LEAGUE_ID}&season=${season}`;
       console.log("Fetching:", apiUrl);
-      const apiRes = await fetch(apiUrl, {
-        headers: {
-          "x-rapidapi-key": apiKey,
-          "x-rapidapi-host": apiHost,
-        },
-      });
+      const apiRes = await fetch(apiUrl, { headers: authHeaders });
       console.log("Status:", apiRes.status, "for season", season);
       if (!apiRes.ok) {
         lastStatus = apiRes.status;
