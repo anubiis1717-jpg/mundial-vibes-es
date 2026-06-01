@@ -51,12 +51,14 @@ Deno.serve(async (req) => {
 
     for (const season of seasons) {
       const apiUrl = `https://${apiHost}/v3/fixtures?league=${LEAGUE_ID}&season=${season}`;
+      console.log("Fetching:", apiUrl);
       const apiRes = await fetch(apiUrl, {
         headers: {
           "x-rapidapi-key": apiKey,
           "x-rapidapi-host": apiHost,
         },
       });
+      console.log("Status:", apiRes.status, "for season", season);
       if (!apiRes.ok) {
         lastStatus = apiRes.status;
         lastDetails = (await apiRes.text()).slice(0, 200);
