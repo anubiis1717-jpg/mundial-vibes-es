@@ -35,29 +35,54 @@ Deno.serve(async (req) => {
     const apiHost = Deno.env.get("FOOTBALL_API_HOST") ?? "api-football-v1.p.rapidapi.com";
     if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "FOOTBALL_API_KEY not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        JSON.stringify({ error: "FOOTBALL_API_KEY not configured", fixtures: [], count: 0 }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    const url = `https://${apiHost}/v3/fixtures?league=${LEAGUE_ID}&season=${SEASON}`;
-    const apiRes = await fetch(url, {
-      headers: {
-        "X-RapidAPI-Key": apiKey,
-        "X-RapidAPI-Host": apiHost,
-      },
-    });
+    const url = new URL(req.url);
+    const seasonParam = url.searchParams.get("season");
+    const seasons = seasonParam ? [Number(seasonParam)] : DEFAULT_SEASONS;
 
-    if (!apiRes.ok) {
-      const text = await apiRes.text();
+    let raw: any[] = [];
+    let usedSeason: number | null = null;
+    let lastStatus = 0;
+    let lastDetails = "";
+
+    for (const season of seasons) {
+      const apiUrl = `https://${apiHost}/v3/fixtures?league=${LEAGUE_ID}&season=${season}`;
+      const apiRes = await fetch(apiUrl, {
+        headers: {
+          "x-rapidapi-key": apiKey,
+          "x-rapidapi-host": apiHost,
+        },
+      });
+      if (!apiRes.ok) {
+        lastStatus = apiRes.status;
+        lastDetails = (await apiRes.text()).slice(0, 200);
+        continue;
+      }
+      const json = await apiRes.json();
+      const arr = Array.isArray(json?.response) ? json.response : [];
+      if (arr.length > 0) {
+        raw = arr;
+        usedSeason = season;
+        break;
+      }
+    }
+
+    if (raw.length === 0) {
       return new Response(
-        JSON.stringify({ error: `API-Football error ${apiRes.status}`, details: text }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        JSON.stringify({
+          error: `Sin fixtures disponibles (último status ${lastStatus})`,
+          details: lastDetails,
+          fixtures: [],
+          count: 0,
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
 
-    const json = await apiRes.json();
-    const raw = Array.isArray(json?.response) ? json.response : [];
 
     const fixtures = raw.map((r: any) => {
       const iso = r?.fixture?.date as string;
