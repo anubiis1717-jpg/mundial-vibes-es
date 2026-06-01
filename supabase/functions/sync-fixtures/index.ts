@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
     });
 
     return new Response(
-      JSON.stringify({ count: fixtures.length, fixtures, syncedAt: new Date().toISOString() }),
+      JSON.stringify({ count: fixtures.length, fixtures, season: usedSeason, syncedAt: new Date().toISOString() }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
