@@ -91,8 +91,8 @@ Deno.serve(async (req) => {
     if (raw.length === 0) {
       return new Response(
         JSON.stringify({
-          error: `Sin fixtures disponibles (último status ${lastStatus})`,
-          details: lastDetails,
+          error: `Sin fixtures disponibles`,
+          diagnostics,
           fixtures: [],
           count: 0,
         }),
