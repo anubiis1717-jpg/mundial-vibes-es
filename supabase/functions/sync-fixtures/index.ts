@@ -1,10 +1,10 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
-// Sync FIFA World Cup 2026 fixtures from API-Football (RapidAPI).
-// All credentials live as backend secrets only — never exposed to the client.
+// Sync FIFA World Cup fixtures from API-Football (RapidAPI).
+// Credentials stay as backend secrets only.
 
 const LEAGUE_ID = 1; // World Cup
-const SEASON = 2026;
+const DEFAULT_SEASONS = [2026, 2022]; // try current edition, fall back to last played
 
 function toColombiaParts(iso: string) {
   // Convert UTC ISO to Colombia time (UTC-5, no DST)
