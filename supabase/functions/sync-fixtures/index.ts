@@ -55,17 +55,31 @@ Deno.serve(async (req) => {
       ? { "x-rapidapi-key": apiKey, "x-rapidapi-host": apiHost }
       : { "x-apisports-key": apiKey };
 
+    const diagnostics: any[] = [];
     for (const season of seasons) {
       const apiUrl = `https://${apiHost}${pathPrefix}/fixtures?league=${LEAGUE_ID}&season=${season}`;
       console.log("Fetching:", apiUrl);
       const apiRes = await fetch(apiUrl, { headers: authHeaders });
       console.log("Status:", apiRes.status, "for season", season);
+      const text = await apiRes.text();
+      let json: any = null;
+      try { json = JSON.parse(text); } catch { /* not json */ }
+      const diag = {
+        season,
+        url: apiUrl,
+        httpStatus: apiRes.status,
+        apiErrors: json?.errors ?? null,
+        apiResults: json?.results ?? null,
+        apiMessage: json?.message ?? null,
+        bodyPreview: json ? null : text.slice(0, 300),
+      };
+      diagnostics.push(diag);
+      console.log("Diag:", JSON.stringify(diag));
       if (!apiRes.ok) {
         lastStatus = apiRes.status;
-        lastDetails = (await apiRes.text()).slice(0, 200);
+        lastDetails = text.slice(0, 200);
         continue;
       }
-      const json = await apiRes.json();
       const arr = Array.isArray(json?.response) ? json.response : [];
       if (arr.length > 0) {
         raw = arr;
