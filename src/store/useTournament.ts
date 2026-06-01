@@ -95,7 +95,17 @@ export function useTournament() {
     persist();
   }, []);
 
-  return { data: state, setMatch, setKO, setData, restore, clearBracket, simulateGroups, clearScores, updatePlayer };
+  const updateMatchDates = useCallback((updates: Array<{ id: string; date: string }>) => {
+    const map = new Map(updates.map((u) => [u.id, u.date]));
+    state = {
+      ...state,
+      matches: state.matches.map((m) => (map.has(m.id) ? { ...m, date: map.get(m.id)! } : m)),
+    };
+    persist();
+    return map.size;
+  }, []);
+
+  return { data: state, setMatch, setKO, setData, restore, clearBracket, simulateGroups, clearScores, updatePlayer, updateMatchDates };
 }
 
 export function teamById(data: AppData, id: string): Team | undefined {
