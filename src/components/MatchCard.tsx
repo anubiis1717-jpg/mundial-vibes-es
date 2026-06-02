@@ -1,14 +1,29 @@
 import { Match } from "@/data/initialData";
 import { teamById } from "@/store/useTournament";
 import { useTournament } from "@/store/useTournament";
-import { formatColombiaDate } from "@/lib/format";
+import { formatLocalDateTime } from "@/lib/format";
+import { useWorldCupFixtures } from "@/hooks/useWorldCupFixtures";
 import { cn } from "@/lib/utils";
 
 export function MatchCard({ match, editable = true }: { match: Match; editable?: boolean }) {
   const { data, setMatch } = useTournament();
+  const { byMatchId } = useWorldCupFixtures();
   const home = teamById(data, match.homeId);
   const away = teamById(data, match.awayId);
   if (!home || !away) return null;
+
+  const fixture = byMatchId.get(match.id);
+  // If TSDB pairs are swapped vs local, flip badges to match local home/away
+  const swapped = fixture
+    ? (() => {
+        const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        return norm(fixture.homeTeam) !== norm(home.name);
+      })()
+    : false;
+  const homeBadge = fixture ? (swapped ? fixture.awayBadge : fixture.homeBadge) : null;
+  const awayBadge = fixture ? (swapped ? fixture.homeBadge : fixture.awayBadge) : null;
+
+  const dateIso = fixture?.kickoffUtc ?? match.date;
 
   const hs = match.homeScore;
   const as = match.awayScore;
@@ -17,11 +32,16 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
   const awayWin = played && as! > hs!;
   const draw = played && hs === as;
 
-  const status = !played
-    ? { label: "Pendiente", cls: "bg-accent/15 text-accent ring-1 ring-accent/30" }
-    : draw
+  // Local edit state takes priority for the badge label; if no local score, use API status.
+  const status = played
+    ? draw
       ? { label: "Empate", cls: "bg-muted text-foreground ring-1 ring-border" }
-      : { label: "Finalizado", cls: "bg-secondary/15 text-secondary ring-1 ring-secondary/30" };
+      : { label: "Finalizado", cls: "bg-secondary/15 text-secondary ring-1 ring-secondary/30" }
+    : fixture?.status === "LIVE"
+      ? { label: "En vivo", cls: "bg-primary/15 text-primary ring-1 ring-primary/30" }
+      : fixture?.status === "FT"
+        ? { label: "Finalizado", cls: "bg-secondary/15 text-secondary ring-1 ring-secondary/30" }
+        : { label: "Próximamente", cls: "bg-accent/15 text-accent ring-1 ring-accent/30" };
 
   return (
     <div className="card-surface p-4 space-y-3 animate-fade-up press">
@@ -29,13 +49,13 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
         <span className="font-bold text-foreground/80">
           {match.group ? `Grupo ${match.group}` : match.stage.toUpperCase()}
         </span>
-        <span className="text-muted-foreground">{formatColombiaDate(match.date)}</span>
+        <span className="text-muted-foreground">{formatLocalDateTime(dateIso)}</span>
         <span className={cn("px-2 py-0.5 rounded-md font-semibold text-[10px]", status.cls)}>
           {status.label}
         </span>
       </div>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-        <TeamSide flag={home.flag} name={home.name} win={homeWin} align="left" />
+        <TeamSide flag={home.flag} badge={homeBadge} name={home.name} win={homeWin} align="left" />
         <div className="flex items-center gap-1.5 px-2">
           <ScoreInput
             value={hs}
@@ -51,20 +71,31 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
             onChange={(v) => setMatch(match.id, { awayScore: v })}
           />
         </div>
-        <TeamSide flag={away.flag} name={away.name} win={awayWin} align="right" />
+        <TeamSide flag={away.flag} badge={awayBadge} name={away.name} win={awayWin} align="right" />
       </div>
+      {fixture?.venue && (
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground bg-muted/40 rounded-lg px-2.5 py-1.5">
+          <span>📍</span>
+          <span className="font-semibold truncate">{fixture.venue}</span>
+          {fixture.country && <span className="opacity-70">· {fixture.country}</span>}
+        </div>
+      )}
     </div>
   );
 }
 
-function TeamSide({ flag, name, win, align }: { flag: string; name: string; win: boolean; align: "left" | "right" }) {
+function TeamSide({ flag, badge, name, win, align }: { flag: string; badge: string | null; name: string; win: boolean; align: "left" | "right" }) {
   return (
     <div className={cn(
       "flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all",
       align === "right" && "flex-row-reverse text-right",
       win && "bg-win ring-1 ring-secondary/40"
     )}>
-      <span className="text-2xl leading-none drop-shadow">{flag}</span>
+      {badge ? (
+        <img src={badge} alt={name} loading="lazy" className="w-7 h-7 object-contain drop-shadow" />
+      ) : (
+        <span className="text-2xl leading-none drop-shadow">{flag}</span>
+      )}
       <span className={cn("text-sm font-bold leading-tight", win && "accent-green")}>{name}</span>
     </div>
   );
