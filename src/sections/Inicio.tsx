@@ -47,8 +47,8 @@ export function Inicio({ go }: { go: (s: any) => void }) {
   const home = next ? data.teams.find((t) => t.id === next.homeId) : undefined;
   const away = next ? data.teams.find((t) => t.id === next.awayId) : undefined;
   const jornada = next ? (parseInt(next.id.split("-m")[1]) <= 2 ? 1 : parseInt(next.id.split("-m")[1]) <= 4 ? 2 : 3) : 1;
-  const nextFormatted = nextIso ? formatLocalDateTime(nextIso) : null;
-  const [nextDate, nextTime] = nextFormatted ? nextFormatted.split(",").map((s) => s.trim()) : [null, null];
+  const nextParts = formatLocalDateParts(nextIso);
+  const [nextDate, nextTime] = nextParts ? [nextParts.date, nextParts.time] : [null, null];
 
   return (
     <div className="space-y-4 animate-fade-up">
