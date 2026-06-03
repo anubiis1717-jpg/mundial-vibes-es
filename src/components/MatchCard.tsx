@@ -46,7 +46,7 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
         </span>
       </div>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-        <TeamSide flag={home.flag} badge={homeBadge} name={home.name} win={homeWin} align="left" />
+        <TeamSide flag={home.flag} name={home.name} win={homeWin} align="left" />
         <div className="flex items-center gap-1.5 px-2">
           <ScoreInput
             value={hs}
@@ -62,7 +62,8 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
             onChange={(v) => setMatch(match.id, { awayScore: v })}
           />
         </div>
-        <TeamSide flag={away.flag} badge={awayBadge} name={away.name} win={awayWin} align="right" />
+        <TeamSide flag={away.flag} name={away.name} win={awayWin} align="right" />
+
       </div>
       {fixture?.venue && (
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground bg-muted/40 rounded-lg px-2.5 py-1.5">
