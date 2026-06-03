@@ -36,7 +36,9 @@ interface RawEvent {
   strCountry?: string | null;
   strTimestamp?: string | null;
   dateEvent?: string | null;
+  dateEventLocal?: string | null;
   strTime?: string | null;
+  strTimeLocal?: string | null;
   strStatus?: string | null;
   intHomeScore?: string | null;
   intAwayScore?: string | null;
