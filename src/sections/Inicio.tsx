@@ -1,6 +1,6 @@
 import { CalendarDays, Users, Trophy, Goal, ChevronRight } from "lucide-react";
 import { computeStandings, resolveSlot, useTournament } from "@/store/useTournament";
-import { formatLocalDateTime } from "@/lib/format";
+import { formatLocalDateParts } from "@/lib/format";
 import { useWorldCupFixtures } from "@/hooks/useWorldCupFixtures";
 
 
