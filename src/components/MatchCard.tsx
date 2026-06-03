@@ -13,17 +13,8 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
   if (!home || !away) return null;
 
   const fixture = byMatchId.get(match.id);
-  // If TSDB pairs are swapped vs local, flip badges to match local home/away
-  const swapped = fixture
-    ? (() => {
-        const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-        return norm(fixture.homeTeam) !== norm(home.name);
-      })()
-    : false;
-  const homeBadge = fixture ? (swapped ? fixture.awayBadge : fixture.homeBadge) : null;
-  const awayBadge = fixture ? (swapped ? fixture.homeBadge : fixture.awayBadge) : null;
-
   const dateIso = fixture?.kickoffUtc ?? match.date;
+
 
   const hs = match.homeScore;
   const as = match.awayScore;
