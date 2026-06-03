@@ -13,17 +13,8 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
   if (!home || !away) return null;
 
   const fixture = byMatchId.get(match.id);
-  // If TSDB pairs are swapped vs local, flip badges to match local home/away
-  const swapped = fixture
-    ? (() => {
-        const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-        return norm(fixture.homeTeam) !== norm(home.name);
-      })()
-    : false;
-  const homeBadge = fixture ? (swapped ? fixture.awayBadge : fixture.homeBadge) : null;
-  const awayBadge = fixture ? (swapped ? fixture.homeBadge : fixture.awayBadge) : null;
-
   const dateIso = fixture?.kickoffUtc ?? match.date;
+
 
   const hs = match.homeScore;
   const as = match.awayScore;
@@ -55,7 +46,7 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
         </span>
       </div>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-        <TeamSide flag={home.flag} badge={homeBadge} name={home.name} win={homeWin} align="left" />
+        <TeamSide flag={home.flag} name={home.name} win={homeWin} align="left" />
         <div className="flex items-center gap-1.5 px-2">
           <ScoreInput
             value={hs}
@@ -71,7 +62,8 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
             onChange={(v) => setMatch(match.id, { awayScore: v })}
           />
         </div>
-        <TeamSide flag={away.flag} badge={awayBadge} name={away.name} win={awayWin} align="right" />
+        <TeamSide flag={away.flag} name={away.name} win={awayWin} align="right" />
+
       </div>
       {fixture?.venue && (
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground bg-muted/40 rounded-lg px-2.5 py-1.5">
@@ -84,22 +76,19 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
   );
 }
 
-function TeamSide({ flag, badge, name, win, align }: { flag: string; badge: string | null; name: string; win: boolean; align: "left" | "right" }) {
+function TeamSide({ flag, name, win, align }: { flag: string; name: string; win: boolean; align: "left" | "right" }) {
   return (
     <div className={cn(
       "flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all",
       align === "right" && "flex-row-reverse text-right",
       win && "bg-win ring-1 ring-secondary/40"
     )}>
-      {badge ? (
-        <img src={badge} alt={name} loading="lazy" className="w-7 h-7 object-contain drop-shadow" />
-      ) : (
-        <span className="text-2xl leading-none drop-shadow">{flag}</span>
-      )}
+      <span className="text-2xl leading-none drop-shadow">{flag}</span>
       <span className={cn("text-sm font-bold leading-tight", win && "accent-green")}>{name}</span>
     </div>
   );
 }
+
 
 function ScoreInput({ value, onChange, disabled, win }: { value: number | null; onChange: (v: number | null) => void; disabled?: boolean; win?: boolean }) {
   return (
