@@ -115,14 +115,30 @@ export async function getWorldCupFixtures(force = false): Promise<TsdbFixture[]>
   const cached = readCache<TsdbFixture[]>(CACHE_KEY);
   if (!force && cached && Date.now() - cached.ts < TTL_MS) return cached.data;
   try {
-    const res = await fetch(`${BASE}/eventsseason.php?id=${LEAGUE_ID}&s=${SEASON}`);
+    const url = `${BASE}/eventsseason.php?id=${LEAGUE_ID}&s=${SEASON}`;
+    const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     const events: RawEvent[] = json?.events ?? [];
     const mapped = events.map(mapEvent);
+    const withDate = mapped.filter((m) => m.kickoffUtc).length;
+    const missing = mapped.filter((m) => !m.kickoffUtc);
+    // eslint-disable-next-line no-console
+    console.info(
+      `[TSDB] World Cup 2026 fixtures: total=${mapped.length}, withDate=${withDate}, missingDate=${missing.length}`,
+    );
+    if (missing.length > 0) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "[TSDB] Fixtures without date/time:",
+        missing.map((m) => `${m.id} ${m.homeTeam} vs ${m.awayTeam} (${m.round ?? "?"})`),
+      );
+    }
     writeCache(CACHE_KEY, mapped);
     return mapped;
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("[TSDB] Error fetching fixtures:", e);
     if (cached) return cached.data;
     return [];
   }
