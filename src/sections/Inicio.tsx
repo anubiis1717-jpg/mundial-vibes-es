@@ -21,6 +21,7 @@ const GROUP_TONES: Record<string, { ring: string; text: string; glow: string }> 
 
 export function Inicio({ go }: { go: (s: any) => void }) {
   const { data } = useTournament();
+  const { byMatchId } = useWorldCupFixtures();
   const groupMatches = data.matches.filter((m) => m.stage === "group");
   const played = groupMatches.filter((m) => m.homeScore !== null && m.awayScore !== null).length;
   const goals = data.matches.reduce((acc, m) => acc + (m.homeScore ?? 0) + (m.awayScore ?? 0), 0);
@@ -30,11 +31,24 @@ export function Inicio({ go }: { go: (s: any) => void }) {
   const finalMatch = data.knockout.find((k) => k.stage === "final");
   const champTeam = finalMatch ? resolveSlot(data, { kind: "winner", matchId: "M32" }) : undefined;
 
-  // Próximo partido: primer match de grupo sin marcador
-  const next = groupMatches.find((m) => m.homeScore === null && m.awayScore === null);
+  // Próximo partido: el siguiente cronológicamente sin marcador (usa kickoff de TSDB cuando exista)
+  const upcoming = groupMatches
+    .filter((m) => m.homeScore === null && m.awayScore === null)
+    .map((m) => {
+      const fx = byMatchId.get(m.id);
+      const iso = fx?.kickoffUtc ?? m.date;
+      return { m, fx, iso, ts: iso ? new Date(iso).getTime() : Number.POSITIVE_INFINITY };
+    })
+    .sort((a, b) => a.ts - b.ts);
+  const nextEntry = upcoming[0];
+  const next = nextEntry?.m;
+  const nextFixture = nextEntry?.fx;
+  const nextIso = nextEntry?.iso ?? null;
   const home = next ? data.teams.find((t) => t.id === next.homeId) : undefined;
   const away = next ? data.teams.find((t) => t.id === next.awayId) : undefined;
   const jornada = next ? (parseInt(next.id.split("-m")[1]) <= 2 ? 1 : parseInt(next.id.split("-m")[1]) <= 4 ? 2 : 3) : 1;
+  const nextFormatted = nextIso ? formatLocalDateTime(nextIso) : null;
+  const [nextDate, nextTime] = nextFormatted ? nextFormatted.split(",").map((s) => s.trim()) : [null, null];
 
   return (
     <div className="space-y-4 animate-fade-up">
@@ -54,18 +68,25 @@ export function Inicio({ go }: { go: (s: any) => void }) {
               <div className="text-xs font-black uppercase tracking-wide">{home.name}</div>
             </div>
             <div className="flex flex-col items-center gap-1 px-2">
-              <div className="text-[10px] font-bold text-muted-foreground">
-                {next.date ? formatColombiaDate(next.date).split(" · ")[0].toUpperCase() : "POR CONFIRMAR"}
+              <div className="text-[10px] font-bold text-muted-foreground uppercase">
+                {nextDate ?? "POR CONFIRMAR"}
               </div>
-              <div className="text-[11px] accent-gold font-bold">{next.date ? formatColombiaDate(next.date).split(" · ")[1]?.replace(" COL", "") ?? "--:--" : "--:--"}</div>
+              <div className="text-[11px] accent-gold font-bold">{nextTime ?? "--:--"}</div>
               <div className="text-2xl font-black">VS</div>
-              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Hora Colombia</div>
+              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Hora local</div>
             </div>
             <div className="flex flex-col items-center gap-2 text-center">
               <div className="text-5xl leading-none drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]">{away.flag}</div>
               <div className="text-xs font-black uppercase tracking-wide">{away.name}</div>
             </div>
           </div>
+          {nextFixture?.venue && (
+            <div className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground bg-muted/40 rounded-lg px-2.5 py-1.5">
+              <span>📍</span>
+              <span className="font-semibold truncate">{nextFixture.venue}</span>
+              {nextFixture.country && <span className="opacity-70">· {nextFixture.country}</span>}
+            </div>
+          )}
           <button
             onClick={() => go("partidos")}
             className="glass-btn glass-btn-red mt-4 w-full h-11 font-black text-sm tracking-wide press"
@@ -75,6 +96,8 @@ export function Inicio({ go }: { go: (s: any) => void }) {
           </button>
         </div>
       )}
+
+
 
       {/* STATS GRID */}
       <div className="grid grid-cols-4 gap-2">
