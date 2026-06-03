@@ -68,13 +68,27 @@ function normalizeStatus(s?: string | null): FixtureStatus {
 }
 
 function toIsoUtc(ev: RawEvent): string | null {
-  if (ev.strTimestamp) {
-    const d = new Date(ev.strTimestamp.includes("Z") ? ev.strTimestamp : ev.strTimestamp + "Z");
+  // 1) strTimestamp from TSDB is "YYYY-MM-DD HH:MM:SS" in UTC.
+  if (ev.strTimestamp && ev.strTimestamp.trim() !== "") {
+    let s = ev.strTimestamp.trim().replace(" ", "T");
+    if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) s += "Z";
+    const d = new Date(s);
     if (!Number.isNaN(d.getTime())) return d.toISOString();
   }
-  if (ev.dateEvent) {
-    const t = ev.strTime || "00:00:00";
-    const d = new Date(`${ev.dateEvent}T${t}Z`);
+  // 2) Fallback: dateEvent + strTime (UTC).
+  if (ev.dateEvent && ev.dateEvent.trim() !== "") {
+    let time = (ev.strTime && ev.strTime.trim() !== "") ? ev.strTime.trim() : "00:00:00";
+    // strip trailing tz markers, normalize to HH:MM:SS
+    time = time.replace(/[zZ]$/, "").replace(/[+-]\d{2}:?\d{2}$/, "");
+    if (/^\d{2}:\d{2}$/.test(time)) time += ":00";
+    const d = new Date(`${ev.dateEvent.trim()}T${time}Z`);
+    if (!Number.isNaN(d.getTime())) return d.toISOString();
+  }
+  // 3) Last resort: dateEventLocal + strTimeLocal (assume local browser tz).
+  if (ev.dateEventLocal && ev.dateEventLocal.trim() !== "") {
+    let time = (ev.strTimeLocal && ev.strTimeLocal.trim() !== "") ? ev.strTimeLocal.trim() : "00:00:00";
+    if (/^\d{2}:\d{2}$/.test(time)) time += ":00";
+    const d = new Date(`${ev.dateEventLocal.trim()}T${time}`);
     if (!Number.isNaN(d.getTime())) return d.toISOString();
   }
   return null;
