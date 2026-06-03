@@ -36,7 +36,9 @@ interface RawEvent {
   strCountry?: string | null;
   strTimestamp?: string | null;
   dateEvent?: string | null;
+  dateEventLocal?: string | null;
   strTime?: string | null;
+  strTimeLocal?: string | null;
   strStatus?: string | null;
   intHomeScore?: string | null;
   intAwayScore?: string | null;
@@ -66,13 +68,27 @@ function normalizeStatus(s?: string | null): FixtureStatus {
 }
 
 function toIsoUtc(ev: RawEvent): string | null {
-  if (ev.strTimestamp) {
-    const d = new Date(ev.strTimestamp.includes("Z") ? ev.strTimestamp : ev.strTimestamp + "Z");
+  // 1) strTimestamp from TSDB is "YYYY-MM-DD HH:MM:SS" in UTC.
+  if (ev.strTimestamp && ev.strTimestamp.trim() !== "") {
+    let s = ev.strTimestamp.trim().replace(" ", "T");
+    if (!/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) s += "Z";
+    const d = new Date(s);
     if (!Number.isNaN(d.getTime())) return d.toISOString();
   }
-  if (ev.dateEvent) {
-    const t = ev.strTime || "00:00:00";
-    const d = new Date(`${ev.dateEvent}T${t}Z`);
+  // 2) Fallback: dateEvent + strTime (UTC).
+  if (ev.dateEvent && ev.dateEvent.trim() !== "") {
+    let time = (ev.strTime && ev.strTime.trim() !== "") ? ev.strTime.trim() : "00:00:00";
+    // strip trailing tz markers, normalize to HH:MM:SS
+    time = time.replace(/[zZ]$/, "").replace(/[+-]\d{2}:?\d{2}$/, "");
+    if (/^\d{2}:\d{2}$/.test(time)) time += ":00";
+    const d = new Date(`${ev.dateEvent.trim()}T${time}Z`);
+    if (!Number.isNaN(d.getTime())) return d.toISOString();
+  }
+  // 3) Last resort: dateEventLocal + strTimeLocal (assume local browser tz).
+  if (ev.dateEventLocal && ev.dateEventLocal.trim() !== "") {
+    let time = (ev.strTimeLocal && ev.strTimeLocal.trim() !== "") ? ev.strTimeLocal.trim() : "00:00:00";
+    if (/^\d{2}:\d{2}$/.test(time)) time += ":00";
+    const d = new Date(`${ev.dateEventLocal.trim()}T${time}`);
     if (!Number.isNaN(d.getTime())) return d.toISOString();
   }
   return null;
@@ -99,14 +115,30 @@ export async function getWorldCupFixtures(force = false): Promise<TsdbFixture[]>
   const cached = readCache<TsdbFixture[]>(CACHE_KEY);
   if (!force && cached && Date.now() - cached.ts < TTL_MS) return cached.data;
   try {
-    const res = await fetch(`${BASE}/eventsseason.php?id=${LEAGUE_ID}&s=${SEASON}`);
+    const url = `${BASE}/eventsseason.php?id=${LEAGUE_ID}&s=${SEASON}`;
+    const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
     const events: RawEvent[] = json?.events ?? [];
     const mapped = events.map(mapEvent);
+    const withDate = mapped.filter((m) => m.kickoffUtc).length;
+    const missing = mapped.filter((m) => !m.kickoffUtc);
+    // eslint-disable-next-line no-console
+    console.info(
+      `[TSDB] World Cup 2026 fixtures: total=${mapped.length}, withDate=${withDate}, missingDate=${missing.length}`,
+    );
+    if (missing.length > 0) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        "[TSDB] Fixtures without date/time:",
+        missing.map((m) => `${m.id} ${m.homeTeam} vs ${m.awayTeam} (${m.round ?? "?"})`),
+      );
+    }
     writeCache(CACHE_KEY, mapped);
     return mapped;
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("[TSDB] Error fetching fixtures:", e);
     if (cached) return cached.data;
     return [];
   }
