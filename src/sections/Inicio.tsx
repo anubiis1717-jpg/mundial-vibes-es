@@ -1,6 +1,8 @@
 import { CalendarDays, Users, Trophy, Goal, ChevronRight } from "lucide-react";
 import { computeStandings, resolveSlot, useTournament } from "@/store/useTournament";
-import { formatColombiaDate } from "@/lib/format";
+import { formatLocalDateTime } from "@/lib/format";
+import { useWorldCupFixtures } from "@/hooks/useWorldCupFixtures";
+
 
 const GROUP_TONES: Record<string, { ring: string; text: string; glow: string }> = {
   A: { ring: "border-primary/45", text: "text-primary", glow: "shadow-[0_0_28px_-4px_hsl(var(--primary)/0.45)]" },
