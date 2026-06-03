@@ -76,22 +76,19 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
   );
 }
 
-function TeamSide({ flag, badge, name, win, align }: { flag: string; badge: string | null; name: string; win: boolean; align: "left" | "right" }) {
+function TeamSide({ flag, name, win, align }: { flag: string; name: string; win: boolean; align: "left" | "right" }) {
   return (
     <div className={cn(
       "flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all",
       align === "right" && "flex-row-reverse text-right",
       win && "bg-win ring-1 ring-secondary/40"
     )}>
-      {badge ? (
-        <img src={badge} alt={name} loading="lazy" className="w-7 h-7 object-contain drop-shadow" />
-      ) : (
-        <span className="text-2xl leading-none drop-shadow">{flag}</span>
-      )}
+      <span className="text-2xl leading-none drop-shadow">{flag}</span>
       <span className={cn("text-sm font-bold leading-tight", win && "accent-green")}>{name}</span>
     </div>
   );
 }
+
 
 function ScoreInput({ value, onChange, disabled, win }: { value: number | null; onChange: (v: number | null) => void; disabled?: boolean; win?: boolean }) {
   return (
