@@ -166,6 +166,16 @@ function KOCard({ match, compact = false }: { match: KOMatch; compact?: boolean 
           status === "Definir penales" && "bg-primary/20 text-primary",
         )}>{status}</span>
       </div>
+      {(() => {
+        const ko = getKoFixture(match.id);
+        if (!ko) return null;
+        return (
+          <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground bg-muted/40 rounded-lg px-2.5 py-1.5">
+            <span className="font-semibold">{formatLocalDateTime(ko.kickoffUtc)}</span>
+            <span className="truncate opacity-80">📍 {ko.venue}</span>
+          </div>
+        );
+      })()}
 
       <KOSide
         team={home}
