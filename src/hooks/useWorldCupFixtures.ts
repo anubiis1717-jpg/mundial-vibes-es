@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getWorldCupFixtures, TsdbFixture } from "@/services/theSportsDb";
-import { useTournament } from "@/store/useTournament";
+import { useTournament, teamById } from "@/store/useTournament";
+import { getFallbackFixture } from "@/data/schedule2026";
 
 const REFRESH_MS = 15 * 60 * 1000;
 
@@ -90,8 +91,31 @@ export function useWorldCupFixtures() {
       );
       if (match) map.set(match.id, f);
     }
+    // Fallback: para cada partido sin datos de TSDB, busca en el calendario PDF.
+    for (const m of data.matches) {
+      if (map.has(m.id)) continue;
+      const home = teamById(data, m.homeId);
+      const away = teamById(data, m.awayId);
+      if (!home || !away) continue;
+      const fb = getFallbackFixture(home.name, away.name);
+      if (!fb) continue;
+      map.set(m.id, {
+        id: `fallback-${m.id}`,
+        homeTeam: home.name,
+        awayTeam: away.name,
+        homeBadge: null,
+        awayBadge: null,
+        venue: fb.venue,
+        country: fb.country,
+        kickoffUtc: fb.kickoffUtc,
+        status: "NS",
+        homeScore: null,
+        awayScore: null,
+        round: null,
+      });
+    }
     return map;
-  }, [fixtures, data.teams, data.matches]);
+  }, [fixtures, data]);
 
   return { fixtures, byMatchId };
 }
