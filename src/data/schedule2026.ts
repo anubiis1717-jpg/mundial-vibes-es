@@ -163,8 +163,7 @@ const GROUP_ENTRIES: Array<[string, FallbackFixture]> = [
 
   f("Cabo Verde", "España", "2026-06-27", "15:00", "Mercedes-Benz Stadium, Atlanta"),
   f("Arabia Saudita", "Uruguay", "2026-06-27", "12:00", "Hard Rock Stadium, Miami"),
-  f("Senegal", "Francia", "2026-06-27", "21:00", "MetLife Stadium, Nueva Jersey"),
-  f("Noruega", "Irak", "2026-06-27", "18:00", "Gillette Stadium, Boston"),
+
   f("Jordania", "Argentina", "2026-06-27", "15:00", "Levi's Stadium, Santa Clara"),
   f("Argelia", "Austria", "2026-06-27", "12:00", "GEHA Field, Kansas City"),
   f("Panamá", "Inglaterra", "2026-06-27", "21:00", "AT&T Stadium, Arlington"),
