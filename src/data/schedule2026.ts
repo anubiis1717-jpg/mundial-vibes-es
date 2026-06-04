@@ -169,8 +169,7 @@ const GROUP_ENTRIES: Array<[string, FallbackFixture]> = [
   f("Argelia", "Austria", "2026-06-27", "12:00", "GEHA Field, Kansas City"),
   f("Panamá", "Inglaterra", "2026-06-27", "21:00", "AT&T Stadium, Arlington"),
   f("Croacia", "Ghana", "2026-06-27", "18:00", "NRG Stadium, Houston"),
-  f("RD Congo", "Portugal", "2026-06-27", "15:00", "Hard Rock Stadium, Miami"),
-  f("Colombia", "Uzbekistán", "2026-06-27", "12:00", "Estadio Azteca, Ciudad de México"),
+
 ];
 
 const GROUP_MAP = new Map<string, FallbackFixture>(GROUP_ENTRIES);
