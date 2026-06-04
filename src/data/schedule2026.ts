@@ -116,6 +116,9 @@ const GROUP_ENTRIES: Array<[string, FallbackFixture]> = [
   f("España", "Arabia Saudita", "2026-06-21", "12:00", "Mercedes-Benz Stadium, Atlanta"),
   f("Bélgica", "Irán", "2026-06-21", "15:00", "SoFi Stadium, Los Ángeles"),
   f("Nueva Zelanda", "Egipto", "2026-06-21", "21:00", "BC Place, Vancouver"),
+  // Grupo G jornada 3
+  f("Bélgica", "Nueva Zelanda", "2026-06-26", "21:00", "BC Place, Vancouver"),
+  f("Egipto", "Irán", "2026-06-26", "21:00", "Lumen Field, Seattle"),
 
   // --- 22 junio ---
   f("Noruega", "Senegal", "2026-06-22", "20:00", "MetLife Stadium, Nueva Jersey"),
@@ -157,8 +160,7 @@ const GROUP_ENTRIES: Array<[string, FallbackFixture]> = [
   f("RD Congo", "Uzbekistán", "2026-06-27", "17:00", "Mercedes-Benz Stadium, Atlanta"),
 
   // --- 27 junio ---
-  f("Egipto", "Bélgica", "2026-06-27", "21:00", "Lumen Field, Seattle"),
-  f("Nueva Zelanda", "Irán", "2026-06-27", "18:00", "BC Place, Vancouver"),
+
   f("Cabo Verde", "España", "2026-06-27", "15:00", "Mercedes-Benz Stadium, Atlanta"),
   f("Arabia Saudita", "Uruguay", "2026-06-27", "12:00", "Hard Rock Stadium, Miami"),
   f("Senegal", "Francia", "2026-06-27", "21:00", "MetLife Stadium, Nueva Jersey"),
