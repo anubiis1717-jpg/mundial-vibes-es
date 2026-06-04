@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getWorldCupFixtures, TsdbFixture } from "@/services/theSportsDb";
-import { useTournament } from "@/store/useTournament";
+import { useTournament, teamById } from "@/store/useTournament";
+import { getFallbackFixture } from "@/data/schedule2026";
 
 const REFRESH_MS = 15 * 60 * 1000;
 
