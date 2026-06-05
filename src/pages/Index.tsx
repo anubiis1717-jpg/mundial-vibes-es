@@ -4,6 +4,7 @@ import { Inicio } from "@/sections/Inicio";
 import { Grupos } from "@/sections/Grupos";
 import { Partidos } from "@/sections/Partidos";
 import { Bracket } from "@/sections/Bracket";
+import { Plantillas } from "@/sections/Plantillas";
 import { Stats } from "@/sections/Stats";
 import { Ajustes } from "@/sections/Ajustes";
 import heroBg from "@/assets/hero-bg.jpg";
@@ -31,6 +32,7 @@ const Index = () => {
         {section === "grupos" && <Grupos />}
         {section === "partidos" && <Partidos />}
         {section === "bracket" && <Bracket />}
+        {section === "plantillas" && <Plantillas />}
         {section === "stats" && <Stats />}
         {section === "ajustes" && <Ajustes />}
       </main>
