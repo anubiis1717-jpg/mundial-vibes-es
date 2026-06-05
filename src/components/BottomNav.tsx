@@ -1,13 +1,14 @@
-import { Home, Users, CalendarDays, Trophy, BarChart3, Settings } from "lucide-react";
+import { Home, Users, CalendarDays, Trophy, BarChart3, Settings, Shirt } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export type Section = "inicio" | "grupos" | "partidos" | "bracket" | "stats" | "ajustes";
+export type Section = "inicio" | "grupos" | "partidos" | "bracket" | "plantillas" | "stats" | "ajustes";
 
 const items: { id: Section; label: string; icon: any }[] = [
   { id: "inicio", label: "Inicio", icon: Home },
   { id: "grupos", label: "Grupos", icon: Users },
   { id: "partidos", label: "Partidos", icon: CalendarDays },
   { id: "bracket", label: "Bracket", icon: Trophy },
+  { id: "plantillas", label: "Plantillas", icon: Shirt },
   { id: "stats", label: "Stats", icon: BarChart3 },
   { id: "ajustes", label: "Ajustes", icon: Settings },
 ];
@@ -16,7 +17,7 @@ export function BottomNav({ value, onChange }: { value: Section; onChange: (s: S
   return (
     <nav className="fixed bottom-3 inset-x-3 z-50 pb-[env(safe-area-inset-bottom)] max-w-xl md:mx-auto">
       <div className="absolute inset-0 rounded-2xl border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.45)]" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(22px) saturate(160%)", WebkitBackdropFilter: "blur(22px) saturate(160%)" }} />
-      <ul className="relative grid grid-cols-6 rounded-2xl overflow-hidden">
+      <ul className="relative grid grid-cols-7 rounded-2xl overflow-hidden">
         {items.map(({ id, label, icon: Icon }) => {
           const active = value === id;
           return (
