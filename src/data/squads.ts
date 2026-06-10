@@ -3,6 +3,14 @@ export type SquadPosition = "GK" | "DEF" | "MID" | "FWD";
 export interface SquadPlayer { dorsal: number; name: string; club: string; position: SquadPosition; }
 export interface SquadTeam { id: string; name: string; flag: string; players: SquadPlayer[]; }
 
+export const POSITION_LABEL: Record<SquadPosition, string> = {
+  GK: "Porteros",
+  DEF: "Defensas",
+  MID: "Mediocampistas",
+  FWD: "Delanteros",
+};
+
+
 export const SQUADS: SquadTeam[] = [
   { id: "mexico", name: "México", flag: "🇲🇽", players: [
     { dorsal: 1, name: "Guillermo Ochoa", club: "AEL Limassol", position: "GK" },
