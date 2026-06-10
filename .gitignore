@@ -12,6 +12,18 @@ dist
 dist-ssr
 *.local
 
+# Android: llaves de firma y secretos (NUNCA subir a GitHub)
+*.jks
+*.keystore
+android/key.properties
+android/local.properties
+
+# Android: artefactos de compilación
+android/.gradle/
+android/build/
+android/app/build/
+android/capacitor-cordova-android-plugins/build/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

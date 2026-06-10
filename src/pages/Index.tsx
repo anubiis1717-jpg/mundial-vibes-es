@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { BottomNav, Section } from "@/components/BottomNav";
 import { Inicio } from "@/sections/Inicio";
 import { Grupos } from "@/sections/Grupos";
@@ -7,10 +7,22 @@ import { Bracket } from "@/sections/Bracket";
 import { Plantillas } from "@/sections/Plantillas";
 import { Stats } from "@/sections/Stats";
 import { Ajustes } from "@/sections/Ajustes";
+import { BannerAd } from "@/components/BannerAd";
+import { useInterstitialAd } from "@/components/InterstitialAd";
 import heroBg from "@/assets/hero-bg.jpg";
+
+const INTERSTITIAL_SECTIONS: Section[] = ["bracket", "plantillas"];
 
 const Index = () => {
   const [section, setSection] = useState<Section>("inicio");
+  const { showInterstitial } = useInterstitialAd();
+
+  const handleSectionChange = useCallback((next: Section) => {
+    if (INTERSTITIAL_SECTIONS.includes(next)) {
+      showInterstitial();
+    }
+    setSection(next);
+  }, [showInterstitial]);
 
   return (
     <div className="min-h-screen text-foreground relative">
@@ -27,8 +39,9 @@ const Index = () => {
         }}
         aria-hidden
       />
+      <BannerAd show={section === "grupos"} />
       <main className="max-w-xl mx-auto px-4 pt-6 pb-32">
-        {section === "inicio" && <Inicio go={setSection} />}
+        {section === "inicio" && <Inicio go={handleSectionChange} />}
         {section === "grupos" && <Grupos />}
         {section === "partidos" && <Partidos />}
         {section === "bracket" && <Bracket />}
@@ -36,7 +49,7 @@ const Index = () => {
         {section === "stats" && <Stats />}
         {section === "ajustes" && <Ajustes />}
       </main>
-      <BottomNav value={section} onChange={setSection} />
+      <BottomNav value={section} onChange={handleSectionChange} />
     </div>
   );
 };

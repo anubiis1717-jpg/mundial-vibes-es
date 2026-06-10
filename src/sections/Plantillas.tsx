@@ -1,6 +1,13 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, Search } from "lucide-react";
-import { SQUADS, POSITION_LABEL, type SquadPosition, type SquadTeam } from "@/data/squads";
+import { SQUADS, type SquadPosition, type SquadTeam } from "@/data/squads";
+
+const POSITION_LABEL: Record<SquadPosition, string> = {
+  GK: "Porteros",
+  DEF: "Defensas",
+  MID: "Centrocampistas",
+  FWD: "Delanteros",
+};
 
 const POSITION_ORDER: SquadPosition[] = ["GK", "DEF", "MID", "FWD"];
 
