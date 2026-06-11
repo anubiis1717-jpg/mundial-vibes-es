@@ -1,4 +1,4 @@
-package com.mundialvibes.app;
+package com.futhora.app;
 
 import com.getcapacitor.BridgeActivity;
 
