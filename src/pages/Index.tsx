@@ -9,23 +9,29 @@ import { Stats } from "@/sections/Stats";
 import { Ajustes } from "@/sections/Ajustes";
 import { BannerAd } from "@/components/BannerAd";
 import { useInterstitialAd } from "@/components/InterstitialAd";
+import { IntroVideo } from "@/components/IntroVideo";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const INTERSTITIAL_SECTIONS: Section[] = ["bracket", "plantillas"];
 
 const Index = () => {
   const [section, setSection] = useState<Section>("inicio");
+  const [partidosGroup, setPartidosGroup] = useState<string>("A");
   const { showInterstitial } = useInterstitialAd();
 
-  const handleSectionChange = useCallback((next: Section) => {
+  const handleSectionChange = useCallback((next: Section, group?: string) => {
     if (INTERSTITIAL_SECTIONS.includes(next)) {
       showInterstitial();
+    }
+    if (next === "partidos" && group) {
+      setPartidosGroup(group);
     }
     setSection(next);
   }, [showInterstitial]);
 
   return (
     <div className="min-h-screen text-foreground relative">
+      <IntroVideo />
       <div
         className="fixed inset-0 -z-20 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroBg})` }}
@@ -43,7 +49,7 @@ const Index = () => {
       <main className="max-w-xl mx-auto px-4 pt-6 pb-32">
         {section === "inicio" && <Inicio go={handleSectionChange} />}
         {section === "grupos" && <Grupos />}
-        {section === "partidos" && <Partidos />}
+        {section === "partidos" && <Partidos initialGroup={partidosGroup} />}
         {section === "bracket" && <Bracket />}
         {section === "plantillas" && <Plantillas />}
         {section === "stats" && <Stats />}

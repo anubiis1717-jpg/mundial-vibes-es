@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils";
 
 const GROUPS = "ABCDEFGHIJKL".split("");
 
-export function Partidos() {
+export function Partidos({ initialGroup = "A" }: { initialGroup?: string }) {
   const { data } = useTournament();
-  const [g, setG] = useState<string>("A");
+  const [g, setG] = useState<string>(initialGroup);
 
   const matches = data.matches.filter((m) => m.stage === "group" && m.group === g);
 
