@@ -31,7 +31,11 @@ export function Inicio({ go }: { go: (s: any) => void }) {
   const finalMatch = data.knockout.find((k) => k.stage === "final");
   const champTeam = finalMatch ? resolveSlot(data, { kind: "winner", matchId: "M32" }) : undefined;
 
-  // Próximo partido: el siguiente cronológicamente sin marcador (usa kickoff de TSDB cuando exista)
+  // Partido destacado: el que esté EN VIVO ahora tiene prioridad; si no hay, el próximo
+  // cronológicamente sin marcador (usa kickoff de la API cuando exista).
+  const liveEntry = groupMatches
+    .map((m) => ({ m, fx: byMatchId.get(m.id) }))
+    .find((x) => x.fx?.status === "LIVE");
   const upcoming = groupMatches
     .filter((m) => m.homeScore === null && m.awayScore === null)
     .map((m) => {
@@ -40,7 +44,10 @@ export function Inicio({ go }: { go: (s: any) => void }) {
       return { m, fx, iso, ts: iso ? new Date(iso).getTime() : Number.POSITIVE_INFINITY };
     })
     .sort((a, b) => a.ts - b.ts);
-  const nextEntry = upcoming[0];
+  const isLive = !!liveEntry;
+  const nextEntry = liveEntry
+    ? { m: liveEntry.m, fx: liveEntry.fx, iso: liveEntry.fx?.kickoffUtc ?? liveEntry.m.date }
+    : upcoming[0];
   const next = nextEntry?.m;
   const nextFixture = nextEntry?.fx;
   const nextIso = nextEntry?.iso ?? null;
@@ -56,9 +63,19 @@ export function Inicio({ go }: { go: (s: any) => void }) {
       {next && home && away && (
         <div className="card-surface p-4 relative">
           <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            <span className="flex items-center gap-1.5 font-bold">
-              <CalendarDays className="h-3.5 w-3.5 accent-gold" /> Próximo partido
-            </span>
+            {isLive ? (
+              <span className="flex items-center gap-1.5 font-bold text-primary">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-75 animate-ping" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                </span>
+                En vivo
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5 font-bold">
+                <CalendarDays className="h-3.5 w-3.5 accent-gold" /> Próximo partido
+              </span>
+            )}
             <span className="text-muted-foreground/90">Grupo {next.group} · Jornada {jornada}</span>
           </div>
           <div className="h-px my-3 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -68,12 +85,23 @@ export function Inicio({ go }: { go: (s: any) => void }) {
               <div className="text-xs font-black uppercase tracking-wide">{home.name}</div>
             </div>
             <div className="flex flex-col items-center gap-1 px-2">
-              <div className="text-[10px] font-bold text-muted-foreground uppercase">
-                {nextDate ?? "POR CONFIRMAR"}
-              </div>
-              <div className="text-[11px] accent-gold font-bold">{nextTime ?? "--:--"}</div>
-              <div className="text-2xl font-black">VS</div>
-              <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Hora local</div>
+              {isLive && nextFixture?.homeScore !== null && nextFixture?.awayScore !== null ? (
+                <>
+                  <div className="text-4xl font-black tabular-nums leading-none text-primary">
+                    {nextFixture!.homeScore} <span className="text-muted-foreground">-</span> {nextFixture!.awayScore}
+                  </div>
+                  <div className="text-[9px] uppercase tracking-wider text-primary font-bold mt-1">En juego</div>
+                </>
+              ) : (
+                <>
+                  <div className="text-[10px] font-bold text-muted-foreground uppercase">
+                    {nextDate ?? "POR CONFIRMAR"}
+                  </div>
+                  <div className="text-[11px] accent-gold font-bold">{nextTime ?? "--:--"}</div>
+                  <div className="text-2xl font-black">VS</div>
+                  <div className="text-[9px] uppercase tracking-wider text-muted-foreground">Hora local</div>
+                </>
+              )}
             </div>
             <div className="flex flex-col items-center gap-2 text-center">
               <div className="text-5xl leading-none drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)]">{away.flag}</div>
@@ -88,11 +116,11 @@ export function Inicio({ go }: { go: (s: any) => void }) {
             </div>
           )}
           <button
-            onClick={() => go("partidos")}
+            onClick={() => go("partidos", next.group)}
             className="glass-btn glass-btn-red mt-4 w-full h-11 font-black text-sm tracking-wide press"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-primary/30 via-primary/15 to-primary/30" />
-            <span className="relative z-10">VER PARTIDO</span>
+            <span className="relative z-10">{isLive ? "VER EN VIVO" : "VER PARTIDO"}</span>
           </button>
         </div>
       )}
