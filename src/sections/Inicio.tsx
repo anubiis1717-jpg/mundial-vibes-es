@@ -70,6 +70,11 @@ export function Inicio({ go }: { go: (s: any) => void }) {
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                 </span>
                 En vivo
+                {nextFixture?.clock && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded-md bg-primary/20 text-primary font-black tabular-nums tracking-normal text-[10px]">
+                    {nextFixture.clock}
+                  </span>
+                )}
               </span>
             ) : (
               <span className="flex items-center gap-1.5 font-bold">
@@ -90,7 +95,9 @@ export function Inicio({ go }: { go: (s: any) => void }) {
                   <div className="text-4xl font-black tabular-nums leading-none text-primary">
                     {nextFixture!.homeScore} <span className="text-muted-foreground">-</span> {nextFixture!.awayScore}
                   </div>
-                  <div className="text-[9px] uppercase tracking-wider text-primary font-bold mt-1">En juego</div>
+                  <div className="text-[9px] uppercase tracking-wider text-primary font-bold mt-1">
+                    {nextFixture?.clock ? `Minuto ${nextFixture.clock}` : "En juego"}
+                  </div>
                 </>
               ) : (
                 <>
