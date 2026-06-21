@@ -10,10 +10,6 @@ export function Stats() {
     <div className="space-y-5">
       <h2 className="text-2xl font-black">Stats</h2>
 
-      {/* Datos reales del Mundial (ESPN), goleadores primero. */}
-      <LeaderTable kind="goals" title="Goleadores" unit={["gol", "goles"]} />
-      <LeaderTable kind="assists" title="Asistencias" unit={["asist.", "asist."]} />
-
       <section className="card-surface p-4">
         <h3 className="font-bold mb-3 accent-blue">Mejores terceros</h3>
         <ol className="space-y-2">
@@ -32,6 +28,10 @@ export function Stats() {
           ))}
         </ol>
       </section>
+
+      {/* Datos reales del Mundial: goleadores y luego asistencias. */}
+      <LeaderTable kind="goals" title="Goleadores" unit={["gol", "goles"]} />
+      <LeaderTable kind="assists" title="Asistencias" unit={["asist.", "asist."]} />
     </div>
   );
 }
@@ -41,12 +41,7 @@ function LeaderTable({ kind, title, unit }: { kind: LeaderKind; title: string; u
   const { rows, loading, error } = useLeaders(kind);
   return (
     <section className="card-surface p-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-bold accent-green">{title}</h3>
-        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
-          En vivo · ESPN
-        </span>
-      </div>
+      <h3 className="font-bold accent-green mb-3">{title}</h3>
 
       {loading && rows.length === 0 && (
         <ul className="space-y-2">
