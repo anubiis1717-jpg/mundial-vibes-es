@@ -1,15 +1,18 @@
-import { bestThirds, teamById, useTournament } from "@/store/useTournament";
-import { useTopScorers } from "@/hooks/useTopScorers";
-import type { TopScorer } from "@/services/scorers";
+import { bestThirds, useTournament } from "@/store/useTournament";
+import { useLeaders } from "@/hooks/useTopScorers";
+import type { LeaderKind, LeaderRow } from "@/services/scorers";
 
 export function Stats() {
-  const { data, updatePlayer } = useTournament();
+  const { data } = useTournament();
   const thirds = bestThirds(data);
-  const assists = [...data.players].sort((a, b) => b.assists - a.assists);
 
   return (
     <div className="space-y-5">
       <h2 className="text-2xl font-black">Stats</h2>
+
+      {/* Datos reales del Mundial (ESPN), goleadores primero. */}
+      <LeaderTable kind="goals" title="Goleadores" unit={["gol", "goles"]} />
+      <LeaderTable kind="assists" title="Asistencias" unit={["asist.", "asist."]} />
 
       <section className="card-surface p-4">
         <h3 className="font-bold mb-3 accent-blue">Mejores terceros</h3>
@@ -29,26 +32,23 @@ export function Stats() {
           ))}
         </ol>
       </section>
-
-      <TopScorers />
-      <PlayerTable title="Asistencias" players={assists} field="assists" onChange={updatePlayer} />
     </div>
   );
 }
 
-// Goleadores REALES del Mundial, desde la API de ESPN (se actualizan solos).
-function TopScorers() {
-  const { scorers, loading, error } = useTopScorers();
+// Ranking REAL del Mundial (goleadores o asistencias) desde la API de ESPN.
+function LeaderTable({ kind, title, unit }: { kind: LeaderKind; title: string; unit: [string, string] }) {
+  const { rows, loading, error } = useLeaders(kind);
   return (
     <section className="card-surface p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-bold accent-green">Goleadores</h3>
+        <h3 className="font-bold accent-green">{title}</h3>
         <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
           En vivo · ESPN
         </span>
       </div>
 
-      {loading && scorers.length === 0 && (
+      {loading && rows.length === 0 && (
         <ul className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
             <li key={i} className="h-9 rounded-lg bg-muted/50 animate-pulse" />
@@ -58,14 +58,14 @@ function TopScorers() {
 
       {!loading && error && (
         <p className="text-sm text-muted-foreground py-2">
-          No se pudieron cargar los goleadores. Revisa tu conexión; se reintenta solo.
+          No se pudo cargar la información. Revisa tu conexión; se reintenta solo.
         </p>
       )}
 
-      {scorers.length > 0 && (
+      {rows.length > 0 && (
         <ol className="space-y-1.5">
-          {scorers.map((p) => (
-            <ScorerRow key={`${p.rank}-${p.name}`} p={p} />
+          {rows.map((p) => (
+            <LeaderRowItem key={`${p.rank}-${p.name}`} p={p} unit={unit} />
           ))}
         </ol>
       )}
@@ -73,7 +73,7 @@ function TopScorers() {
   );
 }
 
-function ScorerRow({ p }: { p: TopScorer }) {
+function LeaderRowItem({ p, unit }: { p: LeaderRow; unit: [string, string] }) {
   return (
     <li className="flex items-center gap-2.5 py-1">
       <span className="w-5 text-center font-black text-muted-foreground tabular-nums">{p.rank}</span>
@@ -93,45 +93,9 @@ function ScorerRow({ p }: { p: TopScorer }) {
         </span>
       </span>
       <span className="flex items-baseline gap-1">
-        <b className="accent-red text-lg tabular-nums">{p.goals}</b>
-        <span className="text-[10px] text-muted-foreground font-bold">{p.goals === 1 ? "gol" : "goles"}</span>
+        <b className="accent-red text-lg tabular-nums">{p.value}</b>
+        <span className="text-[10px] text-muted-foreground font-bold">{p.value === 1 ? unit[0] : unit[1]}</span>
       </span>
     </li>
-  );
-}
-
-function PlayerTable({
-  title, players, field, onChange,
-}: {
-  title: string;
-  players: ReturnType<typeof useTournament>["data"]["players"];
-  field: "goals" | "assists";
-  onChange: (id: string, patch: any) => void;
-}) {
-  const { data } = useTournament();
-  return (
-    <section className="card-surface p-4">
-      <h3 className="font-bold mb-3 accent-green">{title}</h3>
-      <ul className="space-y-2">
-        {players.map((p) => {
-          const t = teamById(data, p.teamId);
-          return (
-            <li key={p.id} className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-2 min-w-0">
-                <span className="text-xl">{t?.flag}</span>
-                <span className="font-semibold truncate">{p.name}</span>
-              </span>
-              <input
-                type="number"
-                min={0}
-                value={p[field]}
-                onChange={(e) => onChange(p.id, { [field]: Math.max(0, parseInt(e.target.value) || 0) })}
-                className="w-14 h-9 rounded-lg bg-muted text-center font-bold border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </li>
-          );
-        })}
-      </ul>
-    </section>
   );
 }

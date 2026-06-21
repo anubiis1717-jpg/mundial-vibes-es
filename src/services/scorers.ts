@@ -1,38 +1,44 @@
-// Goleadores del Mundial 2026 — fuente ESPN core API (en vivo, sin clave).
-// El endpoint de "leaders" da goles por jugador, pero el jugador y el equipo
-// vienen como referencias ($ref) que hay que resolver con una llamada extra.
-// En el teléfono usamos CapacitorHttp (nativo) para evitar bloqueos de CORS;
-// en la web usamos fetch normal.
+// Líderes del Mundial 2026 (goleadores y asistencias) — fuente ESPN core API.
+// El endpoint de "leaders" da el ranking por categoría, pero el jugador y el
+// equipo vienen como referencias ($ref) que hay que resolver con una llamada
+// extra. En el teléfono usamos CapacitorHttp (nativo) para evitar bloqueos de
+// CORS; en la web usamos fetch normal.
 
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 
 const LEADERS_URL =
   "https://sports.core.api.espn.com/v2/sports/soccer/leagues/fifa.world/seasons/2026/types/1/leaders";
-const CACHE_KEY = "espn.scorers.wc2026";
-const TTL_MS = 10 * 60 * 1000; // 10 min: la tabla de goleadores no cambia minuto a minuto.
-const MAX_SCORERS = 20;
+const TTL_MS = 10 * 60 * 1000; // 10 min: el ranking no cambia minuto a minuto.
+const MAX_ROWS = 20;
 
-export interface TopScorer {
+export type LeaderKind = "goals" | "assists";
+
+export interface LeaderRow {
   rank: number;
   name: string;
-  goals: number;
+  value: number; // goles o asistencias según la categoría
   matches: number | null;
   teamName: string;
   teamLogo: string | null;
   photo: string | null;
 }
 
-interface CacheEntry { ts: number; data: TopScorer[] }
+const CATEGORY: Record<LeaderKind, string> = {
+  goals: "goalsLeaders",
+  assists: "assistsLeaders",
+};
 
-function readCache(): CacheEntry | null {
+interface CacheEntry { ts: number; data: LeaderRow[] }
+
+function readCache(kind: LeaderKind): CacheEntry | null {
   try {
-    const raw = localStorage.getItem(CACHE_KEY);
+    const raw = localStorage.getItem(`espn.leaders.${kind}.wc2026`);
     return raw ? (JSON.parse(raw) as CacheEntry) : null;
   } catch { return null; }
 }
 
-function writeCache(data: TopScorer[]) {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch {}
+function writeCache(kind: LeaderKind, data: LeaderRow[]) {
+  try { localStorage.setItem(`espn.leaders.${kind}.wc2026`, JSON.stringify({ ts: Date.now(), data })); } catch {}
 }
 
 // GET JSON que funciona en nativo (sin CORS) y en web.
@@ -68,8 +74,8 @@ const COUNTRY_ES: Record<string, string> = {
 };
 const toEs = (name: string) => COUNTRY_ES[name] ?? name;
 
-// Extrae el número de goles de un leader (value es float, ej 3.0).
-function goalsOf(leader: any): number {
+// El value de ESPN es float (ej 3.0); lo redondeamos a entero.
+function valueOf(leader: any): number {
   const v = Number(leader?.value);
   return Number.isFinite(v) ? Math.round(v) : 0;
 }
@@ -80,15 +86,15 @@ function matchesOf(leader: any): number | null {
   return m ? Number(m[1]) : null;
 }
 
-export async function getTopScorers(force = false): Promise<TopScorer[]> {
-  const cached = readCache();
+export async function getLeaders(kind: LeaderKind, force = false): Promise<LeaderRow[]> {
+  const cached = readCache(kind);
   if (!force && cached && Date.now() - cached.ts < TTL_MS) return cached.data;
   try {
     const root = await getJson(LEADERS_URL);
     const categories: any[] = root?.categories ?? [];
-    const cat = categories.find((c) => c?.name === "goalsLeaders") ?? categories[0];
-    const leaders: any[] = (cat?.leaders ?? []).slice(0, MAX_SCORERS);
-    if (leaders.length === 0) throw new Error("ESPN sin goleadores");
+    const cat = categories.find((c) => c?.name === CATEGORY[kind]);
+    const leaders: any[] = (cat?.leaders ?? []).slice(0, MAX_ROWS);
+    if (leaders.length === 0) throw new Error(`ESPN sin ${kind}`);
 
     // Resuelve jugador y equipo de cada líder en paralelo. Los equipos se cachean
     // por URL para no repetir descargas (varios jugadores del mismo país).
@@ -108,22 +114,25 @@ export async function getTopScorers(force = false): Promise<TopScorer[]> {
         const teamLogo = team?.logos?.[0]?.href ?? null;
         const name: string = ath?.displayName ?? ath?.fullName ?? "—";
         const photo: string | null = ath?.headshot?.href ?? null;
-        return { name, goals: goalsOf(ld), matches: matchesOf(ld), teamName, teamLogo, photo };
+        return { name, value: valueOf(ld), matches: matchesOf(ld), teamName, teamLogo, photo };
       }),
     );
 
-    const data: TopScorer[] = resolved
-      .filter((r) => r.goals > 0)
+    const data: LeaderRow[] = resolved
+      .filter((r) => r.value > 0)
       .map((r, i) => ({ rank: i + 1, ...r }));
 
-    if (data.length === 0) throw new Error("ESPN goleadores vacíos");
+    if (data.length === 0) throw new Error(`ESPN ${kind} vacío`);
     // eslint-disable-next-line no-console
-    console.info(`[ESPN] goleadores Mundial 2026: ${data.length}`);
-    writeCache(data);
+    console.info(`[ESPN] ${kind} Mundial 2026: ${data.length}`);
+    writeCache(kind, data);
     return data;
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.warn("[ESPN] Falló goleadores, usando caché si existe:", e);
+    console.warn(`[ESPN] Falló ${kind}, usando caché si existe:`, e);
     return cached?.data ?? [];
   }
 }
+
+export const getTopScorers = (force = false) => getLeaders("goals", force);
+export const getTopAssists = (force = false) => getLeaders("assists", force);

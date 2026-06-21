@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { getTopScorers, TopScorer } from "@/services/scorers";
+import { getLeaders, LeaderKind, LeaderRow } from "@/services/scorers";
 
 const REFRESH_MS = 10 * 60 * 1000;
 
-export function useTopScorers() {
-  const [scorers, setScorers] = useState<TopScorer[]>([]);
+export function useLeaders(kind: LeaderKind) {
+  const [rows, setRows] = useState<LeaderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -13,9 +13,9 @@ export function useTopScorers() {
     let timer: ReturnType<typeof setTimeout> | null = null;
 
     const load = async (force = false) => {
-      const data = await getTopScorers(force);
+      const data = await getLeaders(kind, force);
       if (cancelled) return;
-      setScorers(data);
+      setRows(data);
       setError(data.length === 0);
       setLoading(false);
       timer = setTimeout(() => load(true), REFRESH_MS);
@@ -29,7 +29,10 @@ export function useTopScorers() {
       if (timer) clearTimeout(timer);
       window.removeEventListener("focus", onFocus);
     };
-  }, []);
+  }, [kind]);
 
-  return { scorers, loading, error };
+  return { rows, loading, error };
 }
+
+export const useTopScorers = () => useLeaders("goals");
+export const useTopAssists = () => useLeaders("assists");
