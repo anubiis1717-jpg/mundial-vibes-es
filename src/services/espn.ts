@@ -53,6 +53,9 @@ function mapEvent(ev: any): TsdbFixture | null {
     homeScore: finishedOrLive && home.score != null ? Number(home.score) : null,
     awayScore: finishedOrLive && away.score != null ? Number(away.score) : null,
     round: comp.notes?.[0]?.headline ?? null,
+    // Reloj solo cuando el partido está EN VIVO (ej. "67'"); en "post"/"pre" no aplica.
+    clock: ev.status?.type?.state === "in" && ev.status?.displayClock ? String(ev.status.displayClock) : null,
+    period: ev.status?.period != null ? Number(ev.status.period) : null,
   };
 }
 

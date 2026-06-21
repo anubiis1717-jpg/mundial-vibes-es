@@ -137,6 +137,8 @@ export function useWorldCupFixtures() {
         homeScore: null,
         awayScore: null,
         round: null,
+        clock: null,
+        period: null,
       });
     }
     return map;

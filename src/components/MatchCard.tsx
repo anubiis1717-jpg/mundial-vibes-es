@@ -29,7 +29,7 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
       ? { label: "Empate", cls: "bg-muted text-foreground ring-1 ring-border" }
       : { label: "Finalizado", cls: "bg-secondary/15 text-secondary ring-1 ring-secondary/30" }
     : fixture?.status === "LIVE"
-      ? { label: "En vivo", cls: "bg-primary/15 text-primary ring-1 ring-primary/30" }
+      ? { label: fixture.clock ? `En vivo · ${fixture.clock}` : "En vivo", cls: "bg-primary/15 text-primary ring-1 ring-primary/30" }
       : fixture?.status === "FT"
         ? { label: "Finalizado", cls: "bg-secondary/15 text-secondary ring-1 ring-secondary/30" }
         : { label: "Próximamente", cls: "bg-accent/15 text-accent ring-1 ring-accent/30" };

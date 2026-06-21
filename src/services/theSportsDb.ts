@@ -23,6 +23,9 @@ export interface TsdbFixture {
   homeScore: number | null;
   awayScore: number | null;
   round: string | null;
+  // Reloj del partido en vivo (ej. "67'") y periodo (1=primer tiempo, 2=segundo). Solo ESPN lo provee.
+  clock: string | null;
+  period: number | null;
 }
 
 interface RawEvent {
@@ -40,6 +43,7 @@ interface RawEvent {
   strTime?: string | null;
   strTimeLocal?: string | null;
   strStatus?: string | null;
+  strProgress?: string | null;
   intHomeScore?: string | null;
   intAwayScore?: string | null;
   strRound?: string | null;
@@ -108,6 +112,8 @@ function mapEvent(ev: RawEvent): TsdbFixture {
     homeScore: ev.intHomeScore != null && ev.intHomeScore !== "" ? Number(ev.intHomeScore) : null,
     awayScore: ev.intAwayScore != null && ev.intAwayScore !== "" ? Number(ev.intAwayScore) : null,
     round: ev.strRound ?? null,
+    clock: ev.strProgress && ev.strProgress.trim() !== "" ? ev.strProgress.trim() : null,
+    period: null,
   };
 }
 
