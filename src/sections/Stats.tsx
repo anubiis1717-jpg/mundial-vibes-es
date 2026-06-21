@@ -1,6 +1,10 @@
 import { bestThirds, useTournament } from "@/store/useTournament";
 import { useLeaders } from "@/hooks/useTopScorers";
 import type { LeaderKind, LeaderRow } from "@/services/scorers";
+import { cn } from "@/lib/utils";
+
+// Solo los 8 mejores terceros avanzan a la ronda de 32; del 9.º al 12.º quedan eliminados.
+const THIRDS_QUALIFY = 8;
 
 export function Stats() {
   const { data } = useTournament();
@@ -11,21 +15,47 @@ export function Stats() {
       <h2 className="text-2xl font-black">Stats</h2>
 
       <section className="card-surface p-4">
-        <h3 className="font-bold mb-3 accent-blue">Mejores terceros</h3>
-        <ol className="space-y-2">
-          {thirds.map((t, i) => (
-            <li key={t.group} className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2">
-                <span className="w-5 text-center font-bold text-muted-foreground">{i + 1}</span>
-                <span className="text-xl">{t.standing.team.flag}</span>
-                <span className="font-semibold">{t.standing.team.name}</span>
-                <span className="text-xs text-muted-foreground">({t.group})</span>
-              </span>
-              <span className="text-xs">
-                <b className="accent-red">{t.standing.pts}</b> pts · DG {t.standing.dg}
-              </span>
-            </li>
-          ))}
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="font-bold accent-blue">Mejores terceros</h3>
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+            Avanzan 8
+          </span>
+        </div>
+        <p className="text-[11px] text-muted-foreground mb-3">
+          Pasan a la ronda de 32 los 8 mejores; del 9.º al 12.º quedan eliminados.
+        </p>
+        <ol className="space-y-1">
+          {thirds.map((t, i) => {
+            const eliminated = i >= THIRDS_QUALIFY;
+            return (
+              <li
+                key={t.group}
+                className={cn(
+                  "flex items-center justify-between text-sm rounded-lg pl-2 pr-2 py-1.5 border-l-4 transition-colors",
+                  eliminated
+                    ? "border-l-primary bg-primary/10"
+                    : "border-l-secondary/60 bg-secondary/5",
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <span className={cn("w-5 text-center font-black tabular-nums", eliminated ? "text-primary" : "text-secondary")}>
+                    {i + 1}
+                  </span>
+                  <span className="text-xl">{t.standing.team.flag}</span>
+                  <span className="font-semibold">{t.standing.team.name}</span>
+                  <span className="text-xs text-muted-foreground">({t.group})</span>
+                </span>
+                <span className="text-xs flex items-center gap-2">
+                  <span><b className="accent-red">{t.standing.pts}</b> pts · DG {t.standing.dg}</span>
+                  {eliminated && (
+                    <span className="text-[9px] uppercase font-black text-primary bg-primary/15 rounded px-1.5 py-0.5">
+                      Elim.
+                    </span>
+                  )}
+                </span>
+              </li>
+            );
+          })}
         </ol>
       </section>
 
