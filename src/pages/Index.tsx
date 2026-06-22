@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { BottomNav, Section } from "@/components/BottomNav";
 import { Inicio } from "@/sections/Inicio";
 import { Grupos } from "@/sections/Grupos";
@@ -10,6 +10,7 @@ import { Ajustes } from "@/sections/Ajustes";
 import { BannerAd } from "@/components/BannerAd";
 import { useInterstitialAd } from "@/components/InterstitialAd";
 import { IntroVideo } from "@/components/IntroVideo";
+import { reconcileReminders } from "@/services/matchReminders";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const INTERSTITIAL_SECTIONS: Section[] = ["bracket", "plantillas"];
@@ -18,6 +19,9 @@ const Index = () => {
   const [section, setSection] = useState<Section>("inicio");
   const [partidosGroup, setPartidosGroup] = useState<string>("A");
   const { showInterstitial } = useInterstitialAd();
+
+  // Al abrir: pone al día los recordatorios (limpia los ya jugados, reprograma futuros).
+  useEffect(() => { reconcileReminders(); }, []);
 
   const handleSectionChange = useCallback((next: Section, group?: string) => {
     if (INTERSTITIAL_SECTIONS.includes(next)) {

@@ -1,7 +1,49 @@
+import { useState } from "react";
 import { bestThirds, useTournament } from "@/store/useTournament";
 import { useLeaders } from "@/hooks/useTopScorers";
 import type { LeaderKind, LeaderRow } from "@/services/scorers";
 import { cn } from "@/lib/utils";
+
+// ESPN no tiene foto de muchos jugadores de selecciones (la URL no existe).
+// Para que el hueco se vea intencional, mostramos un avatar con su inicial y un
+// color derivado del nombre. Si una foto sí existe pero falla al cargar en el
+// teléfono, también caemos a este avatar.
+const AVATAR_TONES = [
+  "from-primary/45 to-primary/10 text-primary",
+  "from-accent/45 to-accent/10 text-accent",
+  "from-secondary/45 to-secondary/10 text-secondary",
+  "from-[hsl(var(--gold))]/45 to-[hsl(var(--gold))]/10 accent-gold",
+];
+function toneFor(name: string): string {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0;
+  return AVATAR_TONES[Math.abs(h) % AVATAR_TONES.length];
+}
+
+function PlayerAvatar({ photo, name }: { photo: string | null; name: string }) {
+  const [broken, setBroken] = useState(false);
+  if (photo && !broken) {
+    return (
+      <img
+        src={photo}
+        alt=""
+        loading="lazy"
+        onError={() => setBroken(true)}
+        className="h-8 w-8 rounded-full object-cover bg-muted shrink-0"
+      />
+    );
+  }
+  return (
+    <span
+      className={cn(
+        "h-8 w-8 rounded-full bg-gradient-to-br flex items-center justify-center text-xs font-black ring-1 ring-white/10 shrink-0",
+        toneFor(name)
+      )}
+    >
+      {name.charAt(0).toUpperCase()}
+    </span>
+  );
+}
 
 // Solo los 8 mejores terceros avanzan a la ronda de 32; del 9.º al 12.º quedan eliminados.
 const THIRDS_QUALIFY = 8;
@@ -102,13 +144,7 @@ function LeaderRowItem({ p, unit }: { p: LeaderRow; unit: [string, string] }) {
   return (
     <li className="flex items-center gap-2.5 py-1">
       <span className="w-5 text-center font-black text-muted-foreground tabular-nums">{p.rank}</span>
-      {p.photo ? (
-        <img src={p.photo} alt="" loading="lazy" className="h-8 w-8 rounded-full object-cover bg-muted" />
-      ) : (
-        <span className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-black">
-          {p.name.charAt(0)}
-        </span>
-      )}
+      <PlayerAvatar photo={p.photo} name={p.name} />
       <span className="flex flex-col min-w-0 flex-1">
         <span className="font-semibold truncate leading-tight">{p.name}</span>
         <span className="flex items-center gap-1 text-[11px] text-muted-foreground truncate">

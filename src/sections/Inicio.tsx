@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { CalendarDays, Users, Trophy, Goal, ChevronRight } from "lucide-react";
 import { computeStandings, resolveSlot, useTournament } from "@/store/useTournament";
 import { formatLocalDateParts } from "@/lib/format";
 import { useWorldCupFixtures } from "@/hooks/useWorldCupFixtures";
+import { MatchDetail } from "@/components/MatchDetail";
+import { ReminderBell } from "@/components/ReminderBell";
 
 
 const GROUP_TONES: Record<string, { ring: string; text: string; glow: string }> = {
@@ -22,6 +25,7 @@ const GROUP_TONES: Record<string, { ring: string; text: string; glow: string }> 
 export function Inicio({ go }: { go: (s: any) => void }) {
   const { data } = useTournament();
   const { byMatchId } = useWorldCupFixtures();
+  const [detailEventId, setDetailEventId] = useState<string | null>(null);
   const groupMatches = data.matches.filter((m) => m.stage === "group");
   const played = groupMatches.filter((m) => m.homeScore !== null && m.awayScore !== null).length;
   const goals = data.matches.reduce((acc, m) => acc + (m.homeScore ?? 0) + (m.awayScore ?? 0), 0);
@@ -50,6 +54,9 @@ export function Inicio({ go }: { go: (s: any) => void }) {
     : upcoming[0];
   const next = nextEntry?.m;
   const nextFixture = nextEntry?.fx;
+  // ID de evento real de ESPN para abrir el detalle (los "fallback-" no tienen).
+  const featuredEventId =
+    nextFixture && !nextFixture.id.startsWith("fallback-") ? nextFixture.id : null;
   const nextIso = nextEntry?.iso ?? null;
   const home = next ? data.teams.find((t) => t.id === next.homeId) : undefined;
   const away = next ? data.teams.find((t) => t.id === next.awayId) : undefined;
@@ -81,7 +88,12 @@ export function Inicio({ go }: { go: (s: any) => void }) {
                 <CalendarDays className="h-3.5 w-3.5 accent-gold" /> Próximo partido
               </span>
             )}
-            <span className="text-muted-foreground/90">Grupo {next.group} · Jornada {jornada}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground/90">Grupo {next.group} · Jornada {jornada}</span>
+              {!isLive && nextIso && new Date(nextIso).getTime() > Date.now() && (
+                <ReminderBell matchId={next.id} kickoffUtc={nextIso} homeName={home.name} awayName={away.name} />
+              )}
+            </div>
           </div>
           <div className="h-px my-3 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
@@ -123,11 +135,11 @@ export function Inicio({ go }: { go: (s: any) => void }) {
             </div>
           )}
           <button
-            onClick={() => go("partidos", next.group)}
+            onClick={() => (featuredEventId ? setDetailEventId(featuredEventId) : go("partidos", next.group))}
             className="glass-btn glass-btn-red mt-4 w-full h-11 font-black text-sm tracking-wide press"
           >
             <span className="absolute inset-0 bg-gradient-to-r from-primary/30 via-primary/15 to-primary/30" />
-            <span className="relative z-10">{isLive ? "VER EN VIVO" : "VER PARTIDO"}</span>
+            <span className="relative z-10">{featuredEventId ? "VER DETALLES" : "VER PARTIDO"}</span>
           </button>
         </div>
       )}
@@ -199,6 +211,10 @@ export function Inicio({ go }: { go: (s: any) => void }) {
         </div>
         <BracketPreview />
       </div>
+
+      {detailEventId && (
+        <MatchDetail eventId={detailEventId} onClose={() => setDetailEventId(null)} />
+      )}
     </div>
   );
 }

@@ -41,8 +41,16 @@ function writeCache(kind: LeaderKind, data: LeaderRow[]) {
   try { localStorage.setItem(`espn.leaders.${kind}.wc2026`, JSON.stringify({ ts: Date.now(), data })); } catch {}
 }
 
+// ESPN devuelve sus referencias ($ref) y a veces fotos/escudos como "http://".
+// Android bloquea el tráfico en claro por defecto, así que en el teléfono esas
+// llamadas/imágenes fallan (nombres y fotos salían vacíos). Forzamos "https://"
+// —el mismo contenido se sirve por HTTPS— para que cargue también en nativo.
+const toHttps = (url: string | null | undefined): string | null =>
+  url ? url.replace(/^http:\/\//i, "https://") : null;
+
 // GET JSON que funciona en nativo (sin CORS) y en web.
-async function getJson(url: string): Promise<any> {
+async function getJson(rawUrl: string): Promise<any> {
+  const url = toHttps(rawUrl)!;
   if (Capacitor.isNativePlatform()) {
     const res = await CapacitorHttp.get({ url, headers: { Accept: "application/json" } });
     if (res.status >= 400) throw new Error(`HTTP ${res.status}`);
@@ -111,9 +119,9 @@ export async function getLeaders(kind: LeaderKind, force = false): Promise<Leade
           ld?.team?.$ref ? teamRef(ld.team.$ref) : null,
         ]);
         const teamName = team?.displayName ? toEs(team.displayName) : "";
-        const teamLogo = team?.logos?.[0]?.href ?? null;
+        const teamLogo = toHttps(team?.logos?.[0]?.href);
         const name: string = ath?.displayName ?? ath?.fullName ?? "—";
-        const photo: string | null = ath?.headshot?.href ?? null;
+        const photo: string | null = toHttps(ath?.headshot?.href);
         return { name, value: valueOf(ld), matches: matchesOf(ld), teamName, teamLogo, photo };
       }),
     );
