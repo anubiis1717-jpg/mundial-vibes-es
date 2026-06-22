@@ -1,19 +1,25 @@
+import { useState } from "react";
 import { Match } from "@/data/initialData";
 import { teamById } from "@/store/useTournament";
 import { useTournament } from "@/store/useTournament";
 import { formatLocalDateTime } from "@/lib/format";
 import { useWorldCupFixtures } from "@/hooks/useWorldCupFixtures";
+import { MatchDetail } from "@/components/MatchDetail";
+import { ReminderBell } from "@/components/ReminderBell";
 import { cn } from "@/lib/utils";
 
 export function MatchCard({ match, editable = true }: { match: Match; editable?: boolean }) {
   const { data, setMatch } = useTournament();
   const { byMatchId } = useWorldCupFixtures();
+  const [showDetail, setShowDetail] = useState(false);
   const home = teamById(data, match.homeId);
   const away = teamById(data, match.awayId);
   if (!home || !away) return null;
 
   const fixture = byMatchId.get(match.id);
   const dateIso = fixture?.kickoffUtc ?? match.date;
+  // El detalle solo se puede abrir si hay un evento real de ESPN (no "fallback-").
+  const detailEventId = fixture && !fixture.id.startsWith("fallback-") ? fixture.id : null;
 
 
   const hs = match.homeScore;
@@ -22,6 +28,11 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
   const homeWin = played && hs! > as!;
   const awayWin = played && as! > hs!;
   const draw = played && hs === as;
+
+  // Mostrar campana de recordatorio solo si el partido aún no empieza.
+  const kickoffMs = dateIso ? new Date(dateIso).getTime() : NaN;
+  const canRemind =
+    !played && (fixture?.status ?? "NS") === "NS" && Number.isFinite(kickoffMs) && kickoffMs > Date.now();
 
   // Local edit state takes priority for the badge label; if no local score, use API status.
   const status = played
@@ -41,9 +52,14 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
           {match.group ? `Grupo ${match.group}` : match.stage.toUpperCase()}
         </span>
         <span className="text-muted-foreground">{formatLocalDateTime(dateIso)}</span>
-        <span className={cn("px-2 py-0.5 rounded-md font-semibold text-[10px]", status.cls)}>
-          {status.label}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className={cn("px-2 py-0.5 rounded-md font-semibold text-[10px]", status.cls)}>
+            {status.label}
+          </span>
+          {canRemind && (
+            <ReminderBell matchId={match.id} kickoffUtc={dateIso} homeName={home.name} awayName={away.name} />
+          )}
+        </div>
       </div>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
         <TeamSide flag={home.flag} name={home.name} win={homeWin} align="left" />
@@ -71,6 +87,17 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
           <span className="font-semibold truncate">{fixture.venue}</span>
           {fixture.country && <span className="opacity-70">· {fixture.country}</span>}
         </div>
+      )}
+      {detailEventId && (
+        <button
+          onClick={() => setShowDetail(true)}
+          className="w-full rounded-lg py-2 text-[11px] font-bold uppercase tracking-wider text-accent bg-accent/10 ring-1 ring-accent/25 press"
+        >
+          Ver detalles
+        </button>
+      )}
+      {showDetail && detailEventId && (
+        <MatchDetail eventId={detailEventId} onClose={() => setShowDetail(false)} />
       )}
     </div>
   );
