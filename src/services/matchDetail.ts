@@ -5,6 +5,7 @@
 // https en las imágenes (Android bloquea el http en claro → escudos vacíos).
 
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
+import { getLang, tr } from "@/i18n";
 
 const SUMMARY = (eventId: string) =>
   `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event=${encodeURIComponent(eventId)}`;
@@ -42,7 +43,8 @@ const COUNTRY_ES: Record<string, string> = {
   "Ecuador": "Ecuador", "Italy": "Italia", "Poland": "Polonia", "Denmark": "Dinamarca",
   "Australia": "Australia", "Nigeria": "Nigeria", "Cameroon": "Camerún",
 };
-const toEs = (name: string) => COUNTRY_ES[name] ?? name;
+// En inglés mostramos el nombre tal cual lo da ESPN; en español lo traducimos.
+const localName = (name: string) => (getLang() === "en" ? name : (COUNTRY_ES[name] ?? name));
 
 // Estado del partido EN→ES. ESPN usa textos como "First Half", "Halftime",
 // "Full Time", etc. Mapeamos por texto en minúsculas y, si no, intentamos por
@@ -134,16 +136,16 @@ function classify(typeText: string, scoring: boolean): EventKind {
 }
 
 // Estadísticas que mostramos, en orden, con sus posibles etiquetas en ESPN.
-const STAT_DEFS: { es: string; match: string[] }[] = [
-  { es: "Posesión (%)", match: ["possession"] },
-  { es: "Remates", match: ["shots", "total shots"] },
-  { es: "Remates al arco", match: ["shots on target", "shots on goal"] },
-  { es: "Tiros de esquina", match: ["corner kicks", "won corners"] },
-  { es: "Faltas", match: ["fouls", "fouls committed"] },
-  { es: "Fueras de juego", match: ["offsides"] },
-  { es: "Amarillas", match: ["yellow cards"] },
-  { es: "Rojas", match: ["red cards"] },
-  { es: "Atajadas", match: ["saves"] },
+const STAT_DEFS: { key: string; match: string[] }[] = [
+  { key: "stat.possession", match: ["possession"] },
+  { key: "stat.shots", match: ["shots", "total shots"] },
+  { key: "stat.shotsOnTarget", match: ["shots on target", "shots on goal"] },
+  { key: "stat.corners", match: ["corner kicks", "won corners"] },
+  { key: "stat.fouls", match: ["fouls", "fouls committed"] },
+  { key: "stat.offsides", match: ["offsides"] },
+  { key: "stat.yellow", match: ["yellow cards"] },
+  { key: "stat.red", match: ["red cards"] },
+  { key: "stat.saves", match: ["saves"] },
 ];
 
 export async function getMatchDetail(eventId: string): Promise<MatchDetail> {
@@ -157,7 +159,7 @@ export async function getMatchDetail(eventId: string): Promise<MatchDetail> {
   const awayId = String(awayC?.team?.id ?? "");
 
   const teamInfo = (c: any): TeamInfo => ({
-    name: toEs(c?.team?.displayName ?? ""),
+    name: localName(c?.team?.displayName ?? ""),
     logo: toHttps(c?.team?.logos?.[0]?.href ?? c?.team?.logo),
     score: num(c?.score),
   });
@@ -171,7 +173,8 @@ export async function getMatchDetail(eventId: string): Promise<MatchDetail> {
 
   const state: string = comp?.status?.type?.state ?? "pre";
   const rawStatus: string = comp?.status?.type?.description ?? comp?.status?.type?.shortDetail ?? "";
-  const statusText = translateStatus(rawStatus);
+  // ESPN entrega el estado en inglés; en modo inglés lo dejamos tal cual.
+  const statusText = getLang() === "en" ? rawStatus : translateStatus(rawStatus);
   const clock = state === "in" ? (comp?.status?.displayClock ?? null) : null;
 
   // --- Eventos (goles, tarjetas, cambios) ---
@@ -183,9 +186,9 @@ export async function getMatchDetail(eventId: string): Promise<MatchDetail> {
       const p0 = parts[0]?.athlete?.displayName ?? "";
       const p1 = parts[1]?.athlete?.displayName ?? "";
       let note: string | null = null;
-      if ((kind === "goal" || kind === "penalty") && p1) note = `Asist.: ${p1}`;
-      else if (kind === "own") note = "En propia puerta";
-      else if (kind === "penalty") note = "Penal";
+      if ((kind === "goal" || kind === "penalty") && p1) note = tr("ev.assist", { name: p1 });
+      else if (kind === "own") note = tr("ev.ownGoal");
+      else if (kind === "penalty") note = tr("ev.penalty");
       else if (kind === "sub" && p1) note = `↔ ${p1}`;
       return {
         minute: e?.clock?.displayValue ?? "",
@@ -234,7 +237,7 @@ export async function getMatchDetail(eventId: string): Promise<MatchDetail> {
     const h = statBySide.home[key] ?? "-";
     const a = statBySide.away[key] ?? "-";
     if (h === "-" && a === "-") continue;
-    stats.push({ label: def.es, home: h, away: a });
+    stats.push({ label: tr(def.key), home: h, away: a });
   }
 
   const hasData =

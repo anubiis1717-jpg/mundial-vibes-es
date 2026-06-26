@@ -10,12 +10,14 @@ import {
   TeamInfo,
 } from "@/services/matchDetail";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
 
 const EVENT_ICON: Record<EventKind, string> = {
   goal: "⚽", penalty: "⚽", own: "⚽", yellow: "🟨", red: "🟥", sub: "🔁", var: "📺", other: "•",
 };
 
 export function MatchDetail({ eventId, onClose }: { eventId: string; onClose: () => void }) {
+  const { t, lang } = useI18n();
   const [d, setD] = useState<Detail | null>(null);
   const [err, setErr] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -49,8 +51,8 @@ export function MatchDetail({ eventId, onClose }: { eventId: string; onClose: ()
         className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0"
         style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}
       >
-        <h2 className="text-base font-black">Detalle del partido</h2>
-        <button onClick={onClose} aria-label="Cerrar" className="h-9 w-9 rounded-full bg-muted flex items-center justify-center press">
+        <h2 className="text-base font-black">{t("detail.title")}</h2>
+        <button onClick={onClose} aria-label={t("bracket.close")} className="h-9 w-9 rounded-full bg-muted flex items-center justify-center press">
           <X className="h-5 w-5" />
         </button>
       </div>
@@ -62,15 +64,15 @@ export function MatchDetail({ eventId, onClose }: { eventId: string; onClose: ()
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="text-sm font-semibold">Cargando detalle…</span>
+            <span className="text-sm font-semibold">{t("detail.loading")}</span>
           </div>
         )}
 
         {err && !loading && (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
             <AlertCircle className="h-8 w-8" />
-            <span className="text-sm font-semibold">No se pudo cargar el detalle.</span>
-            <span className="text-xs">Revisa tu conexión e inténtalo de nuevo.</span>
+            <span className="text-sm font-semibold">{t("detail.error")}</span>
+            <span className="text-xs">{t("detail.errorHint")}</span>
           </div>
         )}
 
@@ -91,7 +93,7 @@ export function MatchDetail({ eventId, onClose }: { eventId: string; onClose: ()
                       <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
                     </span>
                   )}
-                  {live && d.clock ? `${d.statusText} · ${d.clock}` : d.statusText || "Partido"}
+                  {live && d.clock ? `${d.statusText} · ${d.clock}` : d.statusText || t("detail.match")}
                 </span>
               </div>
               <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
@@ -105,14 +107,13 @@ export function MatchDetail({ eventId, onClose }: { eventId: string; onClose: ()
 
             {!d.hasData && (
               <div className="card-surface p-5 text-center text-sm text-muted-foreground">
-                El detalle (alineaciones, goles y estadísticas) estará disponible
-                cuando el partido comience.
+                {t("detail.notAvailable")}
               </div>
             )}
 
             {/* Eventos */}
             {d.events.length > 0 && (
-              <Section title="Goles y tarjetas">
+              <Section title={t("detail.goalsCards")}>
                 <div className="space-y-1.5">
                   {d.events.map((ev, i) => <EventRow key={i} ev={ev} />)}
                 </div>
@@ -121,7 +122,7 @@ export function MatchDetail({ eventId, onClose }: { eventId: string; onClose: ()
 
             {/* Estadísticas */}
             {d.stats.length > 0 && (
-              <Section title="Estadísticas">
+              <Section title={t("detail.stats")}>
                 <div className="space-y-2.5">
                   {d.stats.map((s, i) => <StatBar key={i} label={s.label} home={s.home} away={s.away} />)}
                 </div>
@@ -130,7 +131,7 @@ export function MatchDetail({ eventId, onClose }: { eventId: string; onClose: ()
 
             {/* Alineaciones */}
             {(d.rosters.home?.starters.length || d.rosters.away?.starters.length) ? (
-              <Section title="Alineaciones">
+              <Section title={t("detail.lineups")}>
                 <div className="grid grid-cols-2 gap-3">
                   <Lineup team={d.home} roster={d.rosters.home} />
                   <Lineup team={d.away} roster={d.rosters.away} />
@@ -142,7 +143,7 @@ export function MatchDetail({ eventId, onClose }: { eventId: string; onClose: ()
             {(d.venue || d.attendance) && (
               <div className="text-center text-[11px] text-muted-foreground space-y-0.5 pt-1">
                 {d.venue && <div>📍 {d.venue}</div>}
-                {d.attendance ? <div>👥 {d.attendance.toLocaleString("es")} asistentes</div> : null}
+                {d.attendance ? <div>👥 {d.attendance.toLocaleString(lang)} {t("detail.attendees")}</div> : null}
               </div>
             )}
           </>
@@ -231,7 +232,8 @@ function StatBar({ label, home, away }: { label: string; home: string; away: str
 }
 
 function Lineup({ team, roster }: { team: TeamInfo; roster: SideRoster | null }) {
-  if (!roster) return <div className="text-xs text-muted-foreground">Sin datos</div>;
+  const { t } = useI18n();
+  if (!roster) return <div className="text-xs text-muted-foreground">{t("detail.noData")}</div>;
   return (
     <div className="min-w-0">
       <div className="flex items-center gap-1.5 mb-2">
@@ -250,7 +252,7 @@ function Lineup({ team, roster }: { team: TeamInfo; roster: SideRoster | null })
       </ul>
       {roster.subs.length > 0 && (
         <>
-          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-2 mb-1">Suplentes</div>
+          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-2 mb-1">{t("detail.subs")}</div>
           <ul className="space-y-1">
             {roster.subs.map((p, i) => (
               <li key={i} className="flex items-baseline gap-1.5 text-[11px] leading-tight text-muted-foreground">

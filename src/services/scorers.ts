@@ -5,6 +5,7 @@
 // CORS; en la web usamos fetch normal.
 
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
+import { getLang } from "@/i18n";
 
 const LEADERS_URL =
   "https://sports.core.api.espn.com/v2/sports/soccer/leagues/fifa.world/seasons/2026/types/1/leaders";
@@ -80,7 +81,8 @@ const COUNTRY_ES: Record<string, string> = {
   "Ecuador": "Ecuador", "Italy": "Italia", "Poland": "Polonia", "Denmark": "Dinamarca",
   "Australia": "Australia", "Nigeria": "Nigeria", "Cameroon": "Camerún",
 };
-const toEs = (name: string) => COUNTRY_ES[name] ?? name;
+// En inglés dejamos el nombre que da ESPN; en español lo traducimos.
+const localName = (name: string) => (getLang() === "en" ? name : (COUNTRY_ES[name] ?? name));
 
 // El value de ESPN es float (ej 3.0); lo redondeamos a entero.
 function valueOf(leader: any): number {
@@ -118,7 +120,7 @@ export async function getLeaders(kind: LeaderKind, force = false): Promise<Leade
           ld?.athlete?.$ref ? getJson(ld.athlete.$ref).catch(() => null) : null,
           ld?.team?.$ref ? teamRef(ld.team.$ref) : null,
         ]);
-        const teamName = team?.displayName ? toEs(team.displayName) : "";
+        const teamName = team?.displayName ? localName(team.displayName) : "";
         const teamLogo = toHttps(team?.logos?.[0]?.href);
         const name: string = ath?.displayName ?? ath?.fullName ?? "—";
         const photo: string | null = toHttps(ath?.headshot?.href);

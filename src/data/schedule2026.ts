@@ -187,23 +187,24 @@ const ko = (date: string, time: string, venue: string): FallbackFixture => ({
 });
 
 const KO_FIXTURES: Record<string, FallbackFixture> = {
-  // --- Ronda de 32 (28 jun – 3 jul) ---
-  M1:  ko("2026-06-28", "15:00", "Lumen Field, Seattle"),
-  M2:  ko("2026-06-28", "19:00", "AT&T Stadium, Arlington"),
-  M3:  ko("2026-06-29", "15:00", "Gillette Stadium, Boston"),
-  M4:  ko("2026-06-29", "19:00", "MetLife Stadium, Nueva Jersey"),
-  M5:  ko("2026-06-30", "15:00", "NRG Stadium, Houston"),
-  M6:  ko("2026-06-30", "19:00", "SoFi Stadium, Los Ángeles"),
-  M7:  ko("2026-07-01", "15:00", "Mercedes-Benz Stadium, Atlanta"),
-  M8:  ko("2026-07-01", "19:00", "Hard Rock Stadium, Miami"),
-  M9:  ko("2026-07-02", "15:00", "GEHA Field, Kansas City"),
-  M10: ko("2026-07-02", "19:00", "Estadio Akron, Guadalajara"),
-  M11: ko("2026-07-02", "23:00", "BC Place, Vancouver"),
-  M12: ko("2026-07-03", "15:00", "Estadio Azteca, Ciudad de México"),
-  M13: ko("2026-07-03", "19:00", "BMO Field, Toronto"),
-  M14: ko("2026-07-03", "23:00", "Estadio BBVA, Monterrey"),
-  M15: ko("2026-07-03", "15:00", "Lincoln Financial Field, Filadelfia"),
-  M16: ko("2026-07-03", "19:00", "Levi's Stadium, Santa Clara"),
+  // --- Ronda de 32 (28 jun – 3 jul) — fuente: FIFA oficial ---
+  // Orden de CUADRO (árbol), no cronológico. Cada M lleva su fecha/sede real FIFA.
+  M1:  ko("2026-06-29", "20:30", "Gillette Stadium, Boston"),          // 1E vs 3º
+  M2:  ko("2026-06-30", "17:00", "MetLife Stadium, Nueva Jersey"),     // 1I vs 3º
+  M3:  ko("2026-06-28", "15:00", "SoFi Stadium, Los Ángeles"),        // 2A vs 2B
+  M4:  ko("2026-06-29", "22:00", "Estadio BBVA, Monterrey"),           // 1F vs 2C
+  M5:  ko("2026-07-02", "19:00", "BMO Field, Toronto"),                // 2K vs 2L
+  M6:  ko("2026-07-02", "15:00", "SoFi Stadium, Los Ángeles"),         // 1H vs 2J
+  M7:  ko("2026-07-01", "20:00", "Levi's Stadium, Santa Clara"),       // 1D vs 3º
+  M8:  ko("2026-07-01", "15:00", "Lumen Field, Seattle"),              // 1G vs 3º
+  M9:  ko("2026-06-29", "13:00", "NRG Stadium, Houston"),              // 1C vs 2F
+  M10: ko("2026-06-30", "14:00", "AT&T Stadium, Arlington"),           // 2E vs 2I
+  M11: ko("2026-06-30", "20:00", "Estadio Azteca, Ciudad de México"),  // 1A vs 3º
+  M12: ko("2026-07-01", "13:00", "Mercedes-Benz Stadium, Atlanta"),    // 1L vs 3º
+  M13: ko("2026-07-03", "18:00", "Hard Rock Stadium, Miami"),          // 1J vs 2H
+  M14: ko("2026-07-03", "16:00", "AT&T Stadium, Arlington"),           // 2D vs 2G
+  M15: ko("2026-07-02", "23:00", "BC Place, Vancouver"),               // 1B vs 3º
+  M16: ko("2026-07-03", "22:30", "GEHA Field, Kansas City"),           // 1K vs 3º
 
   // --- Octavos de final (4 – 7 jul) ---
   M17: ko("2026-07-04", "15:00", "MetLife Stadium, Nueva Jersey"),

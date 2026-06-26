@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { computeStandings, useTournament } from "@/store/useTournament";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
 
 const GROUPS = "ABCDEFGHIJKL".split("");
 
 export function Grupos() {
+  const { t } = useI18n();
   const { data } = useTournament();
   const [active, setActive] = useState("A");
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-black">Grupos</h2>
+      <h2 className="text-2xl font-black">{t("groups.title")}</h2>
 
       <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 no-scrollbar">
         {GROUPS.map((g) => (
@@ -30,12 +32,12 @@ export function Grupos() {
       </div>
 
       <div className="card-surface p-4">
-        <h3 className="font-bold mb-3">Grupo {active}</h3>
+        <h3 className="font-bold mb-3">{t("common.group")} {active}</h3>
         <table className="w-full text-sm">
           <thead className="text-[10px] uppercase text-muted-foreground">
             <tr>
-              <th className="text-left py-1">Equipo</th>
-              <th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th><th>Pts</th>
+              <th className="text-left py-1">{t("groups.team")}</th>
+              <th>{t("groups.pj")}</th><th>{t("groups.g")}</th><th>{t("groups.e")}</th><th>{t("groups.p")}</th><th>{t("groups.dg")}</th><th>{t("groups.pts")}</th>
             </tr>
           </thead>
           <tbody>

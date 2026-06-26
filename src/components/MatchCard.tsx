@@ -7,8 +7,10 @@ import { useWorldCupFixtures } from "@/hooks/useWorldCupFixtures";
 import { MatchDetail } from "@/components/MatchDetail";
 import { ReminderBell } from "@/components/ReminderBell";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
 
 export function MatchCard({ match, editable = true }: { match: Match; editable?: boolean }) {
+  const { t } = useI18n();
   const { data, setMatch } = useTournament();
   const { byMatchId } = useWorldCupFixtures();
   const [showDetail, setShowDetail] = useState(false);
@@ -37,19 +39,19 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
   // Local edit state takes priority for the badge label; if no local score, use API status.
   const status = played
     ? draw
-      ? { label: "Empate", cls: "bg-muted text-foreground ring-1 ring-border" }
-      : { label: "Finalizado", cls: "bg-secondary/15 text-secondary ring-1 ring-secondary/30" }
+      ? { label: t("card.draw"), cls: "bg-muted text-foreground ring-1 ring-border" }
+      : { label: t("common.finished"), cls: "bg-secondary/15 text-secondary ring-1 ring-secondary/30" }
     : fixture?.status === "LIVE"
-      ? { label: fixture.clock ? `En vivo · ${fixture.clock}` : "En vivo", cls: "bg-primary/15 text-primary ring-1 ring-primary/30" }
+      ? { label: fixture.clock ? `${t("common.live")} · ${fixture.clock}` : t("common.live"), cls: "bg-primary/15 text-primary ring-1 ring-primary/30" }
       : fixture?.status === "FT"
-        ? { label: "Finalizado", cls: "bg-secondary/15 text-secondary ring-1 ring-secondary/30" }
-        : { label: "Próximamente", cls: "bg-accent/15 text-accent ring-1 ring-accent/30" };
+        ? { label: t("common.finished"), cls: "bg-secondary/15 text-secondary ring-1 ring-secondary/30" }
+        : { label: t("card.upcoming"), cls: "bg-accent/15 text-accent ring-1 ring-accent/30" };
 
   return (
     <div className="card-surface p-4 space-y-3 animate-fade-up press">
       <div className="text-[11px] uppercase tracking-wider flex justify-between items-center">
         <span className="font-bold text-foreground/80">
-          {match.group ? `Grupo ${match.group}` : match.stage.toUpperCase()}
+          {match.group ? `${t("common.group")} ${match.group}` : match.stage.toUpperCase()}
         </span>
         <span className="text-muted-foreground">{formatLocalDateTime(dateIso)}</span>
         <div className="flex items-center gap-1.5">
@@ -93,7 +95,7 @@ export function MatchCard({ match, editable = true }: { match: Match; editable?:
           onClick={() => setShowDetail(true)}
           className="w-full rounded-lg py-2 text-[11px] font-bold uppercase tracking-wider text-accent bg-accent/10 ring-1 ring-accent/25 press"
         >
-          Ver detalles
+          {t("card.viewDetails")}
         </button>
       )}
       {showDetail && detailEventId && (

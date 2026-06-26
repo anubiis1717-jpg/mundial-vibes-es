@@ -1,24 +1,27 @@
 import { Home, Users, CalendarDays, Trophy, BarChart3, Settings, Shirt } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
 
 export type Section = "inicio" | "grupos" | "partidos" | "bracket" | "plantillas" | "stats" | "ajustes";
 
-const items: { id: Section; label: string; icon: any }[] = [
-  { id: "inicio", label: "Inicio", icon: Home },
-  { id: "grupos", label: "Grupos", icon: Users },
-  { id: "partidos", label: "Partidos", icon: CalendarDays },
-  { id: "bracket", label: "Bracket", icon: Trophy },
-  { id: "plantillas", label: "Plantillas", icon: Shirt },
-  { id: "stats", label: "Stats", icon: BarChart3 },
-  { id: "ajustes", label: "Ajustes", icon: Settings },
+const items: { id: Section; labelKey: string; icon: any }[] = [
+  { id: "inicio", labelKey: "nav.inicio", icon: Home },
+  { id: "grupos", labelKey: "nav.grupos", icon: Users },
+  { id: "partidos", labelKey: "nav.partidos", icon: CalendarDays },
+  { id: "bracket", labelKey: "nav.bracket", icon: Trophy },
+  { id: "plantillas", labelKey: "nav.plantillas", icon: Shirt },
+  { id: "stats", labelKey: "nav.stats", icon: BarChart3 },
+  { id: "ajustes", labelKey: "nav.ajustes", icon: Settings },
 ];
 
 export function BottomNav({ value, onChange }: { value: Section; onChange: (s: Section) => void }) {
+  const { t } = useI18n();
   return (
     <nav className="fixed bottom-3 inset-x-3 z-50 pb-[env(safe-area-inset-bottom)] max-w-xl md:mx-auto">
       <div className="absolute inset-0 rounded-2xl border border-white/15 shadow-[0_8px_32px_rgba(0,0,0,0.45)]" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(22px) saturate(160%)", WebkitBackdropFilter: "blur(22px) saturate(160%)" }} />
       <ul className="relative grid grid-cols-7 rounded-2xl overflow-hidden">
-        {items.map(({ id, label, icon: Icon }) => {
+        {items.map(({ id, labelKey, icon: Icon }) => {
+          const label = t(labelKey);
           const active = value === id;
           return (
             <li key={id} className="relative">

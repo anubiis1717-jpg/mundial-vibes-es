@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, Search } from "lucide-react";
 import { SQUADS, type SquadPosition, type SquadTeam } from "@/data/squads";
+import { useI18n } from "@/i18n";
 
-const POSITION_LABEL: Record<SquadPosition, string> = {
-  GK: "Porteros",
-  DEF: "Defensas",
-  MID: "Centrocampistas",
-  FWD: "Delanteros",
+const POSITION_KEY: Record<SquadPosition, string> = {
+  GK: "squads.gk",
+  DEF: "squads.def",
+  MID: "squads.mid",
+  FWD: "squads.fwd",
 };
 
 const POSITION_ORDER: SquadPosition[] = ["GK", "DEF", "MID", "FWD"];
@@ -16,12 +17,13 @@ function normalize(s: string) {
 }
 
 export function Plantillas() {
+  const { t, lang } = useI18n();
   const [selected, setSelected] = useState<SquadTeam | null>(null);
   const [query, setQuery] = useState("");
 
   const teams = useMemo(
-    () => [...SQUADS].sort((a, b) => a.name.localeCompare(b.name, "es")),
-    []
+    () => [...SQUADS].sort((a, b) => a.name.localeCompare(b.name, lang)),
+    [lang]
   );
 
   const filtered = useMemo(() => {
@@ -36,37 +38,37 @@ export function Plantillas() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-black">Plantillas</h2>
+      <h2 className="text-2xl font-black">{t("squads.title")}</h2>
 
       <div className="card-surface p-3 flex items-center gap-2">
         <Search className="h-4 w-4 text-muted-foreground shrink-0 ml-1" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar equipo..."
+          placeholder={t("squads.search")}
           className="bg-transparent outline-none text-sm font-semibold flex-1 placeholder:text-muted-foreground"
         />
       </div>
 
       <div className="card-surface p-2">
         <ul className="divide-y divide-white/5">
-          {filtered.map((t) => (
-            <li key={t.id}>
+          {filtered.map((team) => (
+            <li key={team.id}>
               <button
-                onClick={() => setSelected(t)}
+                onClick={() => setSelected(team)}
                 className="w-full flex items-center gap-3 px-3 py-3 press hover:bg-white/5 rounded-xl transition-colors text-left"
               >
-                <span className="text-2xl leading-none">{t.flag}</span>
-                <span className="font-bold text-sm flex-1 truncate">{t.name}</span>
+                <span className="text-2xl leading-none">{team.flag}</span>
+                <span className="font-bold text-sm flex-1 truncate">{team.name}</span>
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
-                  {t.players.length} jug.
+                  {team.players.length} {t("squads.playersShort")}
                 </span>
               </button>
             </li>
           ))}
           {filtered.length === 0 && (
             <li className="px-3 py-6 text-center text-sm text-muted-foreground">
-              Sin resultados
+              {t("squads.noResults")}
             </li>
           )}
         </ul>
@@ -76,6 +78,7 @@ export function Plantillas() {
 }
 
 function TeamSquadView({ team, onBack }: { team: SquadTeam; onBack: () => void }) {
+  const { t } = useI18n();
   const grouped = POSITION_ORDER.map((pos) => ({
     pos,
     players: team.players
@@ -90,7 +93,7 @@ function TeamSquadView({ team, onBack }: { team: SquadTeam; onBack: () => void }
         className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground press"
       >
         <ChevronLeft className="h-4 w-4" />
-        Volver
+        {t("squads.back")}
       </button>
 
       <div className="card-surface p-4 flex items-center gap-3">
@@ -98,7 +101,7 @@ function TeamSquadView({ team, onBack }: { team: SquadTeam; onBack: () => void }
         <div className="flex-1">
           <div className="text-xl font-black">{team.name}</div>
           <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
-            Convocados · {team.players.length} jugadores
+            {t("squads.calledUp")} · {team.players.length} {t("squads.playersWord")}
           </div>
         </div>
       </div>
@@ -106,7 +109,7 @@ function TeamSquadView({ team, onBack }: { team: SquadTeam; onBack: () => void }
       {grouped.map(({ pos, players }) => (
         <section key={pos} className="card-surface p-4">
           <h3 className="text-sm font-black uppercase tracking-wider accent-gold mb-3">
-            {POSITION_LABEL[pos]}
+            {t(POSITION_KEY[pos])}
           </h3>
           <ul className="space-y-2">
             {players.map((p) => (

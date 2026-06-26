@@ -107,24 +107,30 @@ function t(index: number): SlotRef { return { kind: "third", index }; }
 function w(matchId: string): SlotRef { return { kind: "winner", matchId }; }
 function l(matchId: string): SlotRef { return { kind: "loser", matchId }; }
 
-// R32 pairings (16). Left side M1..M8, Right side M9..M16
+// R32 pairings (16) — fuente: bracket oficial FIFA Copa Mundial 2026.
+// IMPORTANTE: el orden es el del CUADRO (árbol), no cronológico. Así el ganador
+// del Partido 1 se cruza con el del Partido 2 en octavos, el del 3 con el del 4,
+// etc. (emparejamiento adyacente abajo). M1-M8 = mitad izquierda (camino a una
+// semifinal); M9-M16 = mitad derecha. Reproduce el bracket FIFA exactamente.
 const r32Pairs: [SlotRef, SlotRef][] = [
-  [p(1, "A"), t(1)],          // M1
-  [p(2, "C"), p(2, "E")],     // M2
-  [p(1, "B"), t(2)],          // M3
-  [p(2, "D"), p(2, "F")],     // M4
-  [p(1, "E"), p(2, "A")],     // M5
-  [p(1, "F"), t(3)],          // M6
-  [p(1, "G"), p(2, "H")],     // M7
-  [p(1, "H"), t(4)],          // M8
-  [p(1, "I"), t(5)],          // M9
-  [p(2, "K"), p(2, "I")],     // M10
-  [p(1, "J"), t(6)],          // M11
-  [p(2, "L"), p(2, "J")],     // M12
-  [p(1, "K"), p(2, "B")],     // M13
-  [p(1, "L"), t(7)],          // M14
-  [p(1, "C"), p(2, "G")],     // M15
-  [p(1, "D"), t(8)],          // M16
+  // --- Mitad izquierda ---
+  [p(1, "E"), t(1)],          // M1  (FIFA 74) 1E vs mejor 3º
+  [p(1, "I"), t(2)],          // M2  (FIFA 77) 1I vs mejor 3º   → octavos con M1
+  [p(2, "A"), p(2, "B")],     // M3  (FIFA 73) 2A vs 2B
+  [p(1, "F"), p(2, "C")],     // M4  (FIFA 75) 1F vs 2C         → octavos con M3
+  [p(2, "K"), p(2, "L")],     // M5  (FIFA 83) 2K vs 2L
+  [p(1, "H"), p(2, "J")],     // M6  (FIFA 84) 1H vs 2J         → octavos con M5
+  [p(1, "D"), t(3)],          // M7  (FIFA 81) 1D vs mejor 3º
+  [p(1, "G"), t(4)],          // M8  (FIFA 82) 1G vs mejor 3º   → octavos con M7
+  // --- Mitad derecha ---
+  [p(1, "C"), p(2, "F")],     // M9  (FIFA 76) 1C vs 2F
+  [p(2, "E"), p(2, "I")],     // M10 (FIFA 78) 2E vs 2I         → octavos con M9
+  [p(1, "A"), t(5)],          // M11 (FIFA 79) 1A vs mejor 3º
+  [p(1, "L"), t(6)],          // M12 (FIFA 80) 1L vs mejor 3º   → octavos con M11
+  [p(1, "J"), p(2, "H")],     // M13 (FIFA 86) 1J vs 2H
+  [p(2, "D"), p(2, "G")],     // M14 (FIFA 88) 2D vs 2G         → octavos con M13
+  [p(1, "B"), t(7)],          // M15 (FIFA 85) 1B vs mejor 3º
+  [p(1, "K"), t(8)],          // M16 (FIFA 87) 1K vs mejor 3º   → octavos con M15
 ];
 
 const knockout: KOMatch[] = [];
@@ -136,7 +142,9 @@ r32Pairs.forEach((pair, i) => {
     homeFrom: pair[0], awayFrom: pair[1], ...blank,
   });
 });
-// R16 (M17..M24): pair adjacents
+// R16 (M17..M24): el ganador de cada partido se cruza con el del partido de al
+// lado (M1+M2 → M17, M3+M4 → M18, ...). Como los R32 ya están en orden de cuadro,
+// el emparejamiento adyacente reproduce exactamente el bracket oficial FIFA.
 for (let i = 0; i < 8; i++) {
   const a = `M${i * 2 + 1}`;
   const b = `M${i * 2 + 2}`;
