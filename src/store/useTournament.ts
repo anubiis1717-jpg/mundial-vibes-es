@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { AppData, INITIAL_DATA, KOMatch, Match, SlotRef, Team } from "@/data/initialData";
+import { tr } from "@/i18n";
 
 const KEY = "mundial2026.v2";
 
@@ -153,9 +154,9 @@ export function bestThirds(data: AppData) {
 
 export function slotLabel(ref: SlotRef): string {
   if (ref.kind === "pos") return `${ref.pos}${ref.group}`;
-  if (ref.kind === "third") return `Mejor 3.º`;
-  if (ref.kind === "winner") return `Ganador Partido ${ref.matchId.replace("M", "")}`;
-  return `Perdedor Partido ${ref.matchId.replace("M", "")}`;
+  if (ref.kind === "third") return tr("slot.best3");
+  if (ref.kind === "winner") return tr("slot.winner", { n: ref.matchId.replace("M", "") });
+  return tr("slot.loser", { n: ref.matchId.replace("M", "") });
 }
 
 export function koWinnerLoser(m: KOMatch): { winner: "home" | "away" | null; loser: "home" | "away" | null } {

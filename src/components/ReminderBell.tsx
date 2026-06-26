@@ -3,6 +3,7 @@ import { Bell, BellRing } from "lucide-react";
 import { toast } from "sonner";
 import { addReminder, removeReminder, isReminderOn } from "@/services/matchReminders";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/i18n";
 
 export function ReminderBell({
   matchId,
@@ -15,6 +16,7 @@ export function ReminderBell({
   homeName: string;
   awayName: string;
 }) {
+  const { t } = useI18n();
   const [on, setOn] = useState(() => isReminderOn(matchId));
   const [busy, setBusy] = useState(false);
 
@@ -26,19 +28,19 @@ export function ReminderBell({
       if (on) {
         await removeReminder(matchId);
         setOn(false);
-        toast("Recordatorio quitado");
+        toast(t("reminder.removed"));
       } else {
         const ok = await addReminder({
           matchId,
           kickoffUtc,
           title: `⚽ ${homeName} vs ${awayName}`,
-          body: "Empieza en 15 minutos",
+          body: t("reminder.startsIn15"),
         });
         if (ok) {
           setOn(true);
-          toast.success("Te avisaremos 15 min antes del partido");
+          toast.success(t("reminder.willNotify"));
         } else {
-          toast.error("Activa las notificaciones para recibir recordatorios");
+          toast.error(t("reminder.enableNotifs"));
         }
       }
     } finally {
@@ -49,7 +51,7 @@ export function ReminderBell({
   return (
     <button
       onClick={toggle}
-      aria-label={on ? "Quitar recordatorio" : "Recordarme este partido"}
+      aria-label={on ? t("reminder.ariaRemove") : t("reminder.ariaAdd")}
       className={cn(
         "h-8 w-8 rounded-full flex items-center justify-center press transition-colors shrink-0",
         on ? "bg-accent/20 text-accent ring-1 ring-accent/40" : "bg-muted text-muted-foreground"
